@@ -1,0 +1,1082 @@
+﻿@page "/Publish"
+@using FusionEdge.Components.Services
+@inject IFileTransferService FileTransferService
+@inject IEmailService EmailService
+@inject IWorkspaceService WorkspaceService
+@inject ISnackbar Snackbar
+@inject UserService UserService
+@inject ScheduleRunnerService ScheduleRunnerService
+@inject NavigationManager Navigation
+@inject ISourceConfigurationService SourceConfigurationService
+@inject SessionService Session
+@inject SchedulePublishService SchedulePublishService
+
+
+@using Microsoft.EntityFrameworkCore
+@using MudBlazor
+@using FusionEdge.Data
+@using FusionEdge.Data.Models
+@using FusionEdge.Data.DTOs
+@using System;
+@using System.ComponentModel.DataAnnotations
+
+
+<MudPaper Class="pa-4 mx-auto  mb-10"
+          Style="background-color:#1e1e2e; color:#e0e0e0; max-width:900px;">
+    <MudStack Spacing="2">
+        <!-- Header -->
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Filled.Settings" Color="Color.Primary" />
+                <MudText Typo="Typo.h6" Style="color: white; font-weight: 500;">
+                    Publishing Settings
+                </MudText>
+            </MudStack>
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mr-2">
+                <MudText Typo="Typo.button" Style="color:white;">
+                    @Session.UserName
+                </MudText>
+
+                <MudIcon Icon="@Icons.Material.Filled.AccountCircle"
+                         Style="color:#b0b0b0;" />
+            </MudStack>
+
+        </MudStack>
+
+        <!-- Description -->
+        <MudText Typo="Typo.body2" Style="color: #b0b0b0;">
+            Configure how schedules are published. You can use automatic scheduling or publish immediately using the Publish Now action.
+        </MudText>
+
+        <MudStack Spacing="2" Class="mt-4">
+            <MudText Typo="Typo.body2" Style="color: #e0e0e0;">Workspace</MudText>
+            @if (isLoadingWorkspaces)
+            {
+                <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+            }
+            else
+            {
+                <MudSelect T="string"
+                           Margin="Margin.Dense"
+                           Variant="Variant.Outlined"
+                           Placeholder="Select a Workspace"
+                           Value="selectedWorkspace"
+                           Error="@(showworkspaceValidation)"
+                           ValueChanged="OnWorkspaceChanged"
+                           Style="background-color: #2a2a3a; border-radius: 4px;">
+                    @foreach (var ws in workspaces)
+                    {
+                        <MudSelectItem T="string" Value="@ws.ObjectId">
+                            @ws.Name
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            
+        </MudStack>
+
+        <MudText Typo="Typo.body2">Project</MudText>
+        @if (isLoadingWorkspaces)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        }
+        else
+        {
+            <MudSelect T="string"
+                       Value="selectedProjectObjectId"
+                       ValueChanged="OnProjectChanged"
+                       Label="Select a Project"
+                       Variant="Variant.Outlined"
+                       Margin="Margin.Dense"
+                       Style="background-color: #2a2a3a; border-radius: 4px;"
+                       Error="@(showProjectValidation)"
+                       Disabled="availableProjects.Count == 0">
+
+                @foreach (var project in availableProjects)
+                {
+                    <MudSelectItem T="string"
+                                   Value="@project.ObjectId">
+                        @project.Name
+                    </MudSelectItem>
+                }
+
+            </MudSelect>
+        }
+        
+        <div class="project-details @(string.IsNullOrWhiteSpace(selectedProjectObjectId) ? "" : "show")">
+            <MudText Typo="Typo.body2" Style="color: #e0e0e0;">Email</MudText>
+            <MudTextField T="string"
+                          ValueChanged="OnEmailChanged"
+                          Value="receiverEmail"
+                          Label="Receiver's Email"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense" 
+                          InputType="InputType.Email"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Email"
+                          Style="background-color: #2a2a3a; border-radius: 4px;"
+                          Error="@showEmailValidation"
+                          ErrorText="Please enter a valid email address." />
+        </div>
+
+        <MudStack Spacing="2" Class="mt-4">
+            <MudText Typo="Typo.body2" Style="color: #e0e0e0;">Schedule Type</MudText>
+
+            <MudGrid Spacing="3">
+                <MudItem xs="3">
+                    <MudPaper Class="pa-4 d-flex flex-column align-center justify-center schedule-card"
+                              Style="@GetScheduleTypeStyle("Daily")"
+                              @onclick="@(() => SelectScheduleType("Daily"))">
+                        <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Medium" Style="color: #e0e0e0;" Margin="Margin.Dense" />
+                        <MudText Typo="Typo.body2" Class="mt-2" Style="color: #e0e0e0;">Daily</MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="3">
+                    <MudPaper Class="pa-4 d-flex flex-column align-center justify-center schedule-card"
+                              Style="@GetScheduleTypeStyle("Weekly")"
+                              @onclick="@(() => SelectScheduleType("Weekly"))">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Style="color: #e0e0e0;" Margin="Margin.Dense" />
+                        <MudText Typo="Typo.body2" Class="mt-2" Style="color: #e0e0e0;">Weekly</MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="3">
+                    <MudPaper Class="pa-4 d-flex flex-column align-center justify-center schedule-card"
+                              Style="@GetScheduleTypeStyle("Custom")"
+                              @onclick="@(() => SelectScheduleType("Custom"))">
+                        <MudIcon Icon="@Icons.Material.Filled.Tune" Size="Size.Medium" Style="color: #e0e0e0;" Margin="Margin.Dense" />
+                        <MudText Typo="Typo.body2" Class="mt-2" Style="color: #e0e0e0;">Custom</MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="3">
+                    <MudPaper Class="pa-4 d-flex flex-column align-center justify-center schedule-card"
+                              Style="@GetScheduleTypeStyle("Never")"
+                              @onclick="@(() => SelectScheduleType("Never"))">
+                        <MudIcon Icon="@Icons.Material.Filled.Block" Size="Size.Medium" Style="color: #e0e0e0;" Margin="Margin.Dense" />
+                        <MudText Typo="Typo.body2" Class="mt-2" Style="color: #e0e0e0;">Never</MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudStack>
+
+        <MudStack Spacing="2" Class="mt-4">
+            @if (ShowDays || selectedScheduleType == "Custom" || selectedScheduleType == "Daily" || selectedScheduleType == "Weekly")
+            {
+                <MudText Typo="Typo.body2" Style="color: #e0e0e0;">Schedule Release Time</MudText>
+            }
+
+            @if (ShowDays)
+            {
+                <MudStack Row="true" Spacing="2" Class="mb-3">
+                    @foreach (var day in daysOfWeek)
+                    {
+                        <MudPaper Class="pa-3 d-flex flex-column align-center justify-center flex-grow-1 schedule-card"
+                                  Style="@GetDayStyle(day)"
+                                  @onclick="@(() => ToggleDay(day))">
+                            <MudIcon Icon="@Icons.Material.Filled.Schedule"
+                                     Size="Size.Medium"
+                                     Style="color: #e0e0e0;" />
+                            <MudText Typo="Typo.body2" Class="mt-2" Style="color: #e0e0e0; font-size: 0.75rem;">
+                                @day.Substring(0, 3)
+                            </MudText>
+                        </MudPaper>
+                    }
+                </MudStack>
+            }
+            @if (selectedScheduleType == "Custom")
+            {
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="6">
+                        <MudDatePicker Label="Pick Date"
+                                 
+                                       Variant="Variant.Outlined"
+                                       Margin="Margin.Dense"
+                                       Required="true"
+                                       @bind-Date="selectedDate"
+                                       ErrorText="Date is required"
+                                       Style="background-color: #2a2a3a; border-radius: 4px; border: 1px solid #3a3a4a;" />
+                    </MudItem>
+        
+                    <MudItem xs="12" sm="6">
+                        <MudTimePicker Label="Select Time"
+                                       AmPm="true"
+                                       Margin="Margin.Dense"
+                                       Time="selectedTime"
+                                       TimeChanged="@(t => selectedTime = t)"
+                                       Variant="Variant.Outlined"
+                                       Required="true"
+                                       Error="@(showValidation && !selectedTime.HasValue)"
+                                       ErrorText="Time is required"
+                                       Style="background-color: #2a2a3a; border-radius: 4px; border: 1px solid #3a3a4a;" />
+                    </MudItem>
+                </MudGrid>
+            }
+            @if (selectedScheduleType == "Daily" || selectedScheduleType == "Weekly")
+            {
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="12">
+                        <MudTimePicker Label="Select Time"
+                                       AmPm="true"
+                                       Margin="Margin.Dense"
+                                       Time="selectedTime"
+                                       TimeChanged="@(t => selectedTime = t)"
+                                       Variant="Variant.Outlined"
+                                       Required="true"
+                                       Error="@(showValidation && !selectedTime.HasValue)"
+                                       ErrorText="Time is required"
+                                       Style="background-color: #2a2a3a; border-radius: 4px; border: 1px solid #3a3a4a;" />
+                    </MudItem>
+                </MudGrid>
+            }
+
+        </MudStack>
+     
+        @if (ShowStatus)
+        {
+            <MudStack Class="mt-2">
+                <MudAlert Severity="@StatusSeverity" Variant="Variant.Filled" ShowCloseIcon="true" CloseIconClicked="CloseAlert">
+                    <MudText Typo="Typo.body2">
+                        @StatusMessage
+                    </MudText>
+                </MudAlert>
+            </MudStack>
+        }
+        
+        <MudStack Row="true" Spacing="3" Class="@(ShowStatus ? "mt-4" : "mt-2")">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Error"
+                       Size="Size.Large"
+                       Style="padding:8px 20px; text-transform:none;"
+                       OnClick="SaveSchedule">
+                Save Settings
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Publish"
+                       Size="Size.Medium"
+                       Style="padding:8px 20px; text-transform:none;"
+                       OnClick="TransferFile">
+                @if (isLoading)
+                {
+                    <MudProgressCircular Indeterminate="true"
+                    Size="Size.Small"
+                    Class="mr-2" />
+                    <span>Publishing...</span>
+                }
+                else
+                {
+                    <span>Publish Now</span>
+                }
+                
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Success"
+                       Size="Size.Medium"
+                       OnClick="TestSchedule"
+                       Style="padding:8px 20px; text-transform:none;">
+                @if (isTesting)
+                {
+                    <MudProgressCircular Indeterminate="true"
+                                         Size="Size.Small"
+                                         Class="mr-2" />
+                    <span>Running Sched....</span>
+                }
+                else
+                {
+                    <span>Test Run Schedule</span>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Info"
+                       Size="Size.Medium"
+                       StartIcon="@Icons.Material.Filled.SettingsInputComponent"
+                       Style="padding:8px 20px; text-transform:none;"
+                       OnClick="@(() => Navigation.NavigateTo("/DataSourceConfiguration"))">
+                Data Source
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudPaper>
+
+@code {
+    private string selectedWorkspace = "";
+    private string receiverEmail = "";
+    private string selectedScheduleType = "Never";
+    private DateTime? selectedDate = DateTime.Now;
+    private TimeSpan? selectedTime = null;
+    private bool showValidation = false;
+    private bool showEmailValidation = false;
+    private bool showworkspaceValidation = false;
+    private bool showProjectValidation = false;
+    private string? StatusMessage;
+    private Severity StatusSeverity = Severity.Info;
+    private bool ShowStatus = false;
+    private bool ShowDays = false;
+    private bool isLoadingWorkspaces = false;
+    private bool isLoadingProjects = false;
+    private List<Workspace> workspaces = new();
+    private List<Project> availableProjects = new();
+    private string selectedProjectObjectId = "";
+    private List<string> selectedDays = new();
+    private List<string> listDaysSchedule = new();
+    private List<ScheduleSetting> savedSchedules = new();
+    private List<string> daysOfWeek = new()
+    {
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+    };
+    private bool isLoading = false;
+    private bool isTesting = false;
+    private bool ShowLoginDialog = false;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? login { get; set; }
+
+    private async Task<SourceConfiguration?> GetConfigAsync()
+    {
+        // var userId = Preferences.Get("logged_in_user_id", 0);
+        // if (userId == 0)
+        // {
+        //     Navigation.NavigateTo("/");
+        //     return null;
+        // }
+
+        if (Session.UserId == 0)
+        {
+            Navigation.NavigateTo("/");
+            return null; 
+        }
+
+        return await SourceConfigurationService.GetSingleSourceConfiguration(Session.UserId);
+    }
+
+    public void Dispose()
+    {
+        ScheduleRunnerService.OnScheduleResult -= HandleScheduleResult;
+    }
+
+    private string GetWorkspaceName(string workspaceId)
+    {
+        return workspaces?
+            .FirstOrDefault(w => w.ObjectId == workspaceId)?
+            .Name ?? workspaceId;
+    }
+
+
+    private string GetProjectName(string projectId)
+    {
+        var project = availableProjects?
+            .FirstOrDefault(p => p.ObjectId == projectId);
+
+        if (project != null)
+            return project.Name;
+
+        using var db = new AppDbContext();
+
+        var saved = db.ScheduleSettings
+            .Where(s => s.Project == projectId)
+            .OrderByDescending(s => s.Id)
+            .FirstOrDefault();
+
+        return saved != null ? $"Project {projectId}" : projectId;
+    }
+
+    private void ShowWarning(string message)
+    {
+        Snackbar.Add(message, Severity.Warning);
+        // ShowStatus = true;
+        // showValidation = true;
+    }
+
+    private string GetSelectedProjectName()
+    {
+        return availableProjects
+            .FirstOrDefault(p => p.ObjectId == selectedProjectObjectId)?
+            .Name ?? "UnknownProject";
+    }
+
+    private void OnEmailChanged(string value)
+    {
+        receiverEmail = value;
+
+        var validator = new EmailAddressAttribute();
+
+        showEmailValidation =
+            !string.IsNullOrWhiteSpace(receiverEmail) &&
+            !validator.IsValid(receiverEmail);
+    }
+
+    private void CloseAlert()
+    {
+        ShowStatus = false;
+        StatusMessage = "";
+    }
+
+    private void ToggleDay(string day)
+    {
+        if (selectedDays.Contains(day))
+        {
+            selectedDays.Remove(day);
+        }
+        else
+        {
+            selectedDays.Add(day);
+        }
+
+        StateHasChanged();
+    }
+
+    private string GetDayStyle(string day)
+    {
+        var baseStyle =
+            "background-color:#2a2a3a;" +
+            "cursor:pointer;" +
+            "min-height:80px;" +
+            "border-radius:8px;" +
+            "transition:all 0.2s ease;";
+
+        return selectedDays.Contains(day)
+            ? baseStyle + "border:2px solid #1976d2; background-color:#2d3f5f;"
+            : baseStyle + "border:1px solid #3a3a4a;";
+    }
+
+    private string GetScheduleTypeStyle(string type)
+    {
+        var baseStyle =
+         "background-color:#2a2a3a;" +
+         "cursor:pointer;" +
+         "min-height:70px;" +
+         "border-radius:8px;" +
+         "transition:all 0.2s ease;";
+
+        return selectedScheduleType == type
+          ? baseStyle + "border:2px solid #1976d2;"
+          : baseStyle + "border:1px solid #3a3a4a;";
+    }
+
+    private void SelectScheduleType(string type)
+    {
+        selectedScheduleType = type;
+        ShowDays =  type == "Weekly";
+
+        if (type == "Never")
+        {
+            selectedTime = null;
+            selectedDays.Clear();
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task TestSchedule()
+    {
+
+        var config = await GetConfigAsync();
+        if (config == null)
+        {
+            Snackbar.Add("Configutaion Failed!", Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            // var success = await SchedulePublishService.TriggerSchedulePublish();
+            // var sourceFile = @"C:\Users\MaechaelGregoreElchi\source\repos\FusionEdge\FusionEdge\Resources\Files\xer\A.test";
+            // var destination = @"C:\Users\MaechaelGregoreElchi\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\";
+            isTesting = true;
+
+            using var db = new AppDbContext();
+            await db.Database.EnsureCreatedAsync();
+
+            var latestSchedule = await db.ScheduleSettings.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
+
+            if (latestSchedule == null)
+            {
+                StatusSeverity = Severity.Warning;
+                StatusMessage = "No DateTime For Schedule Publish";
+                return;
+            }
+
+            var timeDiff = DateTime.Now - latestSchedule.DateTimePublish;
+
+            if (timeDiff.TotalMinutes <= 30 && timeDiff.TotalMinutes >= 0)
+            {
+
+                if (string.IsNullOrWhiteSpace(selectedProjectObjectId))
+                {
+                    Snackbar.Add(
+                        "Project field is required.",
+                        Severity.Warning
+                    );
+                    showProjectValidation = true;
+                    return;
+                }
+                if (!long.TryParse(selectedProjectObjectId, out long projectId))
+                {
+                    Snackbar.Add("Invalid project ID format.", Severity.Warning);
+                    return;
+                }
+                if (string.IsNullOrEmpty(receiverEmail))
+                {
+                    ShowWarning("Receiver's email is required!");
+                    showEmailValidation = true;
+                    return;
+                }
+                var projectName = GetSelectedProjectName();
+
+                var savedPath = await FileTransferService.ExportAndSave(
+                    projectId,
+                    config,
+                    projectName
+                );
+
+                // var email = UserService.CurrentUser.Email;
+                // var password = UserService.CurrentUser.Password;
+                // long projectId = long.Parse(selectedProjectObjectId);
+
+                // var savedPath = await FileTransferService.ExportAndSave(projectId, email, password);
+
+                Snackbar.Configuration.VisibleStateDuration = 1500;
+                Snackbar.Add(
+                    "Project exported!",
+                    Severity.Info
+                );
+
+                selectedProjectObjectId = "";
+                StatusSeverity = Severity.Success;
+                StatusMessage = $"Project exported successfully:\n{savedPath}";
+
+            }else{
+                StatusSeverity = Severity.Info;
+                StatusMessage = "No schedule for publish within 30 minutes.";
+            }
+
+            ShowStatus = true;
+        }
+        catch (FileNotFoundException)
+        {
+            StatusSeverity = Severity.Error;
+            StatusMessage = "Source file not found.";
+        }
+        finally
+        {
+            isTesting = false;
+        }
+    }
+
+    private async Task TransferFile()
+    {
+        if (string.IsNullOrWhiteSpace(selectedProjectObjectId))
+        {
+            Snackbar.Add("Project field is required.", Severity.Warning);
+            showProjectValidation = true;
+            return;
+        }
+
+        if (!long.TryParse(selectedProjectObjectId, out long projectId))
+        {
+            Snackbar.Add("Invalid project ID format.", Severity.Warning);
+            return;
+        }
+
+        if (string.IsNullOrEmpty(receiverEmail))
+        {
+            ShowWarning("Receiver's email is required!");
+            showEmailValidation = true;
+            return;
+        }
+
+        var config = await GetConfigAsync();
+        if (config == null) return;
+
+        try
+        {
+
+            ShowStatus = true;
+            isLoading = true;
+            StatusSeverity = Severity.Info;
+            StatusMessage = "Exporting project...";
+            StateHasChanged();
+
+            // var email = UserService.CurrentUser.Email;
+            // var password = UserService.CurrentUser.Password;
+            // long projectId = long.Parse(selectedProjectObjectId);
+
+            // var savedPath = await FileTransferService.ExportAndSave(projectId, email, password);
+            // var u = config.Username;
+            // var p = config.Password;
+            // var ui = config.UserId;
+            // var s = config.SelectedSource;
+            // var d = config.Domain;
+            // var pp = config.PlainPass;
+            var projectName = GetSelectedProjectName();
+
+            var savedPath = await FileTransferService.ExportAndSave(
+                projectId,
+                config,
+                projectName
+            );
+
+            // selectedProjectObjectId = "";
+            StatusSeverity = Severity.Success;
+            StatusMessage = $"Project exported successfully:\n{savedPath}";
+        }
+        catch (Exception ex)
+        {
+            StatusSeverity = Severity.Error;
+            StatusMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void HandleScheduleResult(ScheduleRunResult result)
+    {
+        InvokeAsync(() =>
+        {
+            if (result.Success)
+            {
+                Snackbar.Add(
+                    $"{GetProjectName(result.Project)} successfully exported",
+                    Severity.Success,
+                    config =>
+                    {
+                        config.RequireInteraction = true;
+                        config.ShowCloseIcon = true;
+                    });
+            }
+            else
+            {
+                Snackbar.Add(
+                    $"Project #{GetProjectName(result.Project)} failed to export: {result.Message}",
+                    Severity.Error,
+                    config =>
+                    {
+                        config.RequireInteraction = true;
+                        config.ShowCloseIcon = true;
+                    });
+            }
+
+            StateHasChanged();
+        });
+    }
+
+
+    private async Task OnWorkspaceChanged(string workspace)
+    {
+        selectedWorkspace = workspace;
+        selectedProjectObjectId = "";
+        receiverEmail = "";
+
+        if (!string.IsNullOrEmpty(selectedWorkspace))
+        {
+            SelectScheduleType("Never");
+            ShowStatus = false;
+        }
+
+        await LoadProjectsForWorkspace(workspace);
+
+        if (availableProjects == null || availableProjects.Count == 0)
+        {
+            Snackbar.Add(
+                "No projects found for the selected workspace.",
+                Severity.Warning
+            );
+        }
+
+        showProjectValidation = false;
+        showEmailValidation = false;
+        StateHasChanged();
+    }
+
+    private async Task LoadProjectsForWorkspace(string workspace)
+    {
+        // var email = UserService.CurrentUser.Email;
+        // var password = UserService.CurrentUser.Password;
+
+        if(string.IsNullOrEmpty(workspace))
+        {
+            availableProjects = new();
+            return;
+        }
+
+        var config = await GetConfigAsync();
+        if (config == null) return;
+
+        try
+        {
+            // availableProjects = await WorkspaceService.GetProjectsAsync(
+            //     workspace,
+            //     email,
+            //     password
+            // );
+            isLoadingProjects = true;
+            StateHasChanged();
+
+            availableProjects = await WorkspaceService.GetProjectsAsync(workspace, config.SelectedSource);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error loading projects: {ex.Message}";
+            StatusSeverity = Severity.Error;
+            ShowStatus = true;
+
+            availableProjects = new List<Project>();
+        }
+    }
+
+    private async Task LoadWorkspaces()
+    {
+        try{
+
+
+
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error loading workspace: {ex.Message}";
+            StatusSeverity = Severity.Error;
+            ShowStatus = true;
+        }
+    }
+
+    private async Task LoadSavedSched()
+    {
+        try
+        {
+            using var db = new AppDbContext();
+            await db.Database.EnsureCreatedAsync();
+
+            savedSchedules = await db.ScheduleSettings.OrderByDescending(s => s.Id).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error loading saved schedule: {ex.Message}";
+            StatusSeverity = Severity.Error;
+            ShowStatus = true;
+        }
+    }
+
+    private async Task LoadLatestSchedule()
+    {
+        try
+        {
+            using var db = new AppDbContext();
+            await db.Database.EnsureCreatedAsync();
+
+            // var latestSchedule = await db.ScheduleSettings.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
+
+            var latestSchedule = await db.ScheduleSettings
+                .Where(s => s.UserId == Session.UserId)
+                .OrderByDescending(s => s.Id)
+                .FirstOrDefaultAsync();
+
+            // savedSchedules = await db.ScheduleSettings.OrderByDescending(s => s.Id).ToListAsync();
+            savedSchedules = await db.ScheduleSettings
+                .Where(s => s.UserId == Session.UserId)
+                .OrderByDescending(s => s.Id)
+                .ToListAsync();
+
+            if(latestSchedule != null)
+            {
+                var savedWorkspaceId = latestSchedule.Workspace;
+
+                var workspace = workspaces
+                    .FirstOrDefault(w => w.ObjectId == savedWorkspaceId);
+
+                if (workspace != null)
+                {
+                    selectedWorkspace = workspace.ObjectId;
+                }
+                // selectedWorkspace = "dasdasdasdasdsad" ?? "";
+                selectedProjectObjectId = latestSchedule.Project ?? "";
+                selectedScheduleType = latestSchedule.ScheduleType ?? "Never";
+                selectedTime = latestSchedule.Time;
+                selectedDate = latestSchedule.DateTimePublish;
+
+
+                if (!string.IsNullOrEmpty(latestSchedule.Days))
+                {
+                    selectedDays = latestSchedule.Days.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+                }
+
+                ShowDays = selectedScheduleType == "Weekly" || selectedScheduleType == "Custom";
+
+
+                if (!string.IsNullOrEmpty(selectedWorkspace))
+                {
+                    await LoadProjectsForWorkspace(selectedWorkspace);
+                }
+
+
+                StatusMessage = "Latest schedule loaded successfully";
+                StatusSeverity = Severity.Info;
+                ShowStatus = true;
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error loading schedule: {ex.Message}";
+            StatusSeverity = Severity.Error;
+            ShowStatus = true;
+        }
+    }
+
+    private async Task SaveSchedule()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(selectedWorkspace) && selectedScheduleType != "Never")
+            {
+                ShowWarning("Please select workspace!");
+                showworkspaceValidation = true;
+                return;
+            }
+
+            if ((string.IsNullOrEmpty(selectedProjectObjectId) && selectedScheduleType != "Never") || string.IsNullOrEmpty(selectedProjectObjectId))
+            {
+                ShowWarning("Please select project!");
+                showProjectValidation = true;
+                return;
+            }
+
+            if ((selectedScheduleType == "Weekly") && selectedDays.Count == 0) 
+            {
+                ShowWarning("Please select at least one day!");
+                return;
+            }
+
+            if (!selectedTime.HasValue && selectedScheduleType != "Never")
+            {
+                ShowWarning("Please select Time!");
+                return;
+            }            
+
+            if(!selectedDate.HasValue && selectedScheduleType != "Never")
+            {
+                ShowWarning("Please select Date!");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(selectedWorkspace))
+            {
+                ShowWarning("Please select workspace!");
+                showworkspaceValidation = true;
+                return;
+            }
+
+            if (string.IsNullOrEmpty(receiverEmail))
+            {
+                ShowWarning("Receiver's email is required!");
+                showEmailValidation = true;
+                return;
+            }
+
+            using var db = new AppDbContext();
+            // await db.Database.EnsureDeletedAsync();
+            await db.Database.EnsureCreatedAsync();
+
+            string daysToSave = "";
+            TimeSpan timeToSave = TimeSpan.Zero;
+            DateTime dateTimeTosave = DateTime.MinValue;
+
+            if (selectedScheduleType != "Never")
+            {
+                dateTimeTosave = selectedDate.Value.Date + selectedTime.Value;
+                daysToSave = string.Join(",", selectedDays);
+                timeToSave = selectedTime ?? TimeSpan.Zero;
+                showValidation = false;
+
+            }
+            var projectName = GetSelectedProjectName();
+
+            var settings = new ScheduleSetting
+            {
+                Workspace = selectedWorkspace,
+                Project = selectedProjectObjectId,
+                Projectname = projectName,
+                ScheduleType = selectedScheduleType ?? "Never",
+                Days = daysToSave,
+                Time = timeToSave,
+                DateTimePublish = dateTimeTosave,
+                // UserId = UserService.CurrentUser.Id
+                UserId =  Session.UserId
+            };
+
+            db.ScheduleSettings.Add(settings);
+            await db.SaveChangesAsync();
+
+            var emailReceiverDto = new EmailReceiverDto
+                {
+                    Email = receiverEmail,
+                    ProjectId = selectedProjectObjectId
+                };
+
+            await EmailService.SaveEmailReceiverAsync(emailReceiverDto);
+
+            Snackbar.Add(
+                "Schedule saved successfully!",
+                Severity.Success
+            );
+            // ShowStatus = true;
+            await LoadSavedSched();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error saving schedule: {ex.Message}";
+            StatusSeverity = Severity.Error;
+            ShowStatus = true;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {   
+
+        if (login == "success")
+        {
+            Snackbar.Configuration.VisibleStateDuration = 1500;
+            Snackbar.Add("Login successful!", Severity.Success);
+            isLoadingWorkspaces = true;
+        }
+
+        ScheduleRunnerService.OnScheduleResult -= HandleScheduleResult;
+        ScheduleRunnerService.OnScheduleResult += HandleScheduleResult;
+
+        var config = await GetConfigAsync();
+
+        if (config == null)
+        {
+            await Task.Delay(1000);
+            isLoadingWorkspaces = false;
+            return;
+        }
+
+        isLoadingWorkspaces = true;
+        StateHasChanged();
+
+        try
+        {
+            workspaces = await WorkspaceService.GetWorkspaceAsync(config.SelectedSource);
+
+            if (workspaces.Any())
+            {
+                selectedWorkspace = workspaces.First().ObjectId;
+                await LoadProjectsForWorkspace(selectedWorkspace);
+            }
+
+            await LoadLatestSchedule();            
+
+            Snackbar.Configuration.VisibleStateDuration = 1500;
+            Snackbar.Add("Loaded successfully!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error loading workspaces: {ex.Message}";
+            StatusSeverity = Severity.Error;
+            ShowStatus = true;
+        }
+        finally
+        {
+            isLoadingWorkspaces = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnProjectChanged(string projectId)
+    {
+        selectedProjectObjectId = projectId;
+        receiverEmail = "";
+        showEmailValidation = false;
+
+        if (string.IsNullOrEmpty(projectId))
+            return;
+
+        using var db = new AppDbContext();
+
+        var schedule = await db.ScheduleSettings
+            .Where(s => s.Project == projectId)
+            .OrderByDescending(s => s.Id)
+            .FirstOrDefaultAsync();
+
+        if (schedule == null)
+        {
+            SelectScheduleType("Never");
+            selectedDays.Clear();
+            selectedTime = null;
+            selectedDate = DateTime.Now;
+
+            Snackbar.Add("No saved schedule for this project.", Severity.Info);
+            return;
+        }
+
+        selectedScheduleType = schedule.ScheduleType ?? "Never";
+        selectedTime = schedule.Time;
+        selectedDate = schedule.DateTimePublish;
+
+        selectedDays = string.IsNullOrEmpty(schedule.Days)
+            ? new List<string>()
+            : schedule.Days.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        ShowDays = selectedScheduleType == "Weekly" || selectedScheduleType == "Custom";
+
+        StatusMessage = "Loaded project schedule.";
+        StatusSeverity = Severity.Info;
+        ShowStatus = true;
+
+        StateHasChanged();
+    }
+}
+
+<style>
+    .schedule-card {
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .schedule-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+            border: 1px solid white !important;
+    }
+
+    .schedule-item-card {
+        cursor: pointer;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+        position: relative;
+    }
+
+    .schedule-item-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+        z-index: 10;
+    }
+
+    .project-details {
+        margin-top: 8px;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease, opacity 0.3s ease;
+    }
+
+    .project-details.show {
+        max-height: 200px;
+        opacity: 1;
+    }
+</style>

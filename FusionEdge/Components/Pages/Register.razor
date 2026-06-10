@@ -1,0 +1,194 @@
+@page "/Register"
+@using MudBlazor
+@using FusionEdge.Components.Services
+@using FusionEdge.Data.DTOs
+@inject IAuthenticationService AuthenticationService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.ExtraSmall"
+              Class="d-flex align-center justify-center"
+              Style="min-height:100vh;">
+
+    <div style="position:relative; width:100%; max-width:420px;">
+
+        <MudAvatar Size="Size.Large"
+                   Color="Color.Info"
+                   Style="
+            position:absolute;
+            top:-36px;
+            left:50%;
+            transform:translateX(-50%);
+            z-index:5;">
+            <MudIcon Icon="@Icons.Material.Filled.PersonAdd"
+                     Size="Size.Large" />
+        </MudAvatar>
+
+        <MudPaper Elevation="10"
+                  Class="pa-8 pt-10"
+                  Style="background-color:#1a2433; border-radius:16px;">
+
+            <MudStack Spacing="3">
+
+                <MudText Typo="Typo.h5"
+                         Align="Align.Center"
+                         Color="Color.Info">
+                    Create Account
+                </MudText>
+
+                <MudText Typo="Typo.subtitle2"
+                         Align="Align.Center">
+                    Register to continue to Fusion Edge
+                </MudText>
+
+                <MudTextField T="string"
+                              Label="Name"
+                              Variant="Variant.Outlined"
+                              FullWidth
+                              @bind-Value="name"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Person" />
+
+                <MudTextField T="string"
+                              Label="Email"
+                              Variant="Variant.Outlined"
+                              FullWidth
+                              @bind-Value="email"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Email" />
+
+                <MudTextField T="string"
+                              Label="Password"
+                              Variant="Variant.Outlined"
+                              FullWidth
+                              @bind-Value="password"
+                              InputType="InputType.Password"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Lock" />
+
+                <MudTextField T="string"
+                              Label="Confirm Password"
+                              Variant="Variant.Outlined"
+                              FullWidth
+                              @bind-Value="confirmPassword"
+                              InputType="InputType.Password"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.LockReset" />
+
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true">
+                        @errorMessage
+                    </MudAlert>
+                }
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth
+                           Size="Size.Large"
+                           Class="mt-2"
+                           Disabled="isLoading"
+                           OnClick="@RegisterUser">
+
+                    @if (isLoading)
+                    {
+                        <MudProgressCircular Size="Size.Small"
+                                             Indeterminate="true"
+                                             Class="mr-2" />
+                        <span>Registering...</span>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Class="mr-2" />
+                        <span>Sign Up</span>
+                    }
+                </MudButton>
+
+                <MudStack Row="true"
+                          Justify="Justify.Center"
+                          AlignItems="AlignItems.Center">
+                    <MudLink Href="/" Typo="Typo.body2">
+                        Already have an account? Login
+                    </MudLink>
+                </MudStack>
+
+            </MudStack>
+
+        </MudPaper>
+    </div>
+</MudContainer>
+
+@code {
+
+    private string name = string.Empty;
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string confirmPassword = string.Empty;
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
+
+    private async Task RegisterUser()
+    {
+        errorMessage = string.Empty;
+
+        // Validation
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            errorMessage = "Name is required.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            errorMessage = "Email is required.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Password is required.";
+            return;
+        }
+
+        if (password != confirmPassword)
+        {
+            errorMessage = "Passwords do not match.";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+
+            var dto = new CreateUserDto
+            {
+                Name = name,
+                Email = email,
+                Password = password
+            };
+
+            var success = await AuthenticationService.RegisterAsync(dto);
+
+            if (success)
+            {
+                Snackbar.Add("Account created successfully", Severity.Success);
+
+                await Task.Delay(900);
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = "Email is already registered.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            await Task.Delay(850);
+            isLoading = false;
+        }
+    }
+}

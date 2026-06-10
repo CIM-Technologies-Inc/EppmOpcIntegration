@@ -1,0 +1,161 @@
+﻿@page "/"
+@using MudBlazor
+@using FusionEdge.Components.Services
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager Navigation
+@inject UserService UserService
+@inject ISnackbar Snackbar
+@inject SessionService Session
+@using FusionEdge.Data;
+@using FusionEdge.Data.Models;
+
+<MudContainer MaxWidth="MaxWidth.ExtraSmall"
+              Class="d-flex align-center justify-center"
+              Style="min-height:100vh;">
+
+    <div style="position:relative; width:100%; max-width:420px;">
+
+        <MudAvatar Size="Size.Large"
+                   Color="Color.Info"
+                   Style="
+            position:absolute;
+            top:-36px;
+            left:50%;
+            transform:translateX(-50%);
+            z-index:5;
+            ">
+        </MudAvatar>
+
+
+        <MudPaper Elevation="10"
+                  Class="pa-8 pt-10"
+                  Style="background-color:#1a2433; border-radius:16px;">
+
+            <MudStack Spacing="3">
+
+                <MudText Typo="Typo.h5"
+                         Align="Align.Center"
+                         Color="Color.Info">
+                    Sign In
+                </MudText>
+
+                <MudText Typo="Typo.subtitle2"
+                         Align="Align.Center">
+                    to continue to Fusion Edge
+                </MudText>
+
+           
+
+                <MudTextField T="string"
+                              Label="Email"
+                              Variant="Variant.Outlined"
+                              FullWidth
+                              @bind-Value="email"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Email" />
+
+                <MudTextField T="string"
+                              Label="Password"
+                              Variant="Variant.Outlined"
+                              FullWidth
+                              @bind-Value="password"
+                              InputType="InputType.Password"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Lock" />
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth
+                           Size="Size.Large"
+                           Class="mt-2"
+                           OnClick="LoginFunction">
+
+                    @* <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-2" />
+                    Sign in *@
+                    @if (isLoading)
+                    {
+                        <MudProgressCircular Indeterminate="true"
+                                             Size="Size.Small"
+                                             Class="mr-2" />
+                        <span>Signing in...</span>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Login"
+                                 Class="mr-2" />
+                        <span>Sign in</span>
+                    } 
+
+                    @* <MudIcon Icon="@Icons.Material.Filled.Login"
+                             Class="mr-2" />
+                    <span>Sign in</span> *@
+                </MudButton>
+
+                <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="1">
+
+                    <MudLink Href="/forgot-password" Typo="Typo.body2">
+                        Forgot your password?
+                    </MudLink>
+
+                    <MudDivider Vertical="true" FlexItem="true" />
+
+                    <MudLink Href="/Register" Typo="Typo.body2">
+                        Sign Up
+                    </MudLink>
+
+                </MudStack>
+
+            </MudStack>
+
+        </MudPaper>
+    </div>
+</MudContainer>
+
+@code {
+
+    private string email;
+    private string password;
+    public bool isLoading { get; set; } = false;
+    private string errorMessage { get; set; } = " ";
+
+    private async Task LoginFunction()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        try
+        {
+            var user = await AuthenticationService.Login(email, password);
+
+            if (user != null)
+            {
+                Session.UserId = user.Id;
+                Session.UserName = user.Name;
+
+                // Navigation.NavigateTo("/Publish");
+                await Task.Delay(1000);
+                Navigation.NavigateTo("/Publish?login=success");
+            }
+            else
+            {
+                errorMessage = "Invalid email or password.";
+                Snackbar.Add(errorMessage, Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An error occurred while logging in.";
+            Snackbar.Add($"{errorMessage} {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            await Task.Delay(1000);
+            isLoading = false;
+        }
+    }
+    private async Task Register()
+    {
+        Navigation.NavigateTo("/Register");
+
+    }
+}
