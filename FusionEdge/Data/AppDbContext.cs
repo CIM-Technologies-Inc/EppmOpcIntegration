@@ -19,6 +19,8 @@ namespace FusionEdge.Data
 
         public DbSet<EmailReceiver> EmailReceivers => Set<EmailReceiver>();
 
+        public DbSet<EmailNotification> EmailNotifications => Set<EmailNotification>();
+
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             // Use MAUI AppDataDirectory for cross-platform storage

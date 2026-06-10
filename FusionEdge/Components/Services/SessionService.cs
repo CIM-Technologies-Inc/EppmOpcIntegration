@@ -10,5 +10,11 @@ namespace FusionEdge.Components.Services
     {
         public int UserId { get; set; }
         public string UserName { get; set; }
+
+        public void Logout()
+        {
+            UserId = 0;
+            UserName = string.Empty;
+        }
     }
 }

@@ -42,7 +42,7 @@ namespace FusionEdge.Components.Services
             projectName = projectName.Replace("_", " ").Trim();
             try
             {
-                //var baseUrl = "http://192.168.8.128:8206";
+               
                 var baseUrl = config.Domain;
 
                 var raw = $"{config.Username}:{config.PlainPass}";

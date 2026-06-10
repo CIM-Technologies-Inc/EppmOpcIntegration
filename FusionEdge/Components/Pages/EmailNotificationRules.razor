@@ -1,0 +1,388 @@
+﻿@page "/EmailNotificationRules"
+@using MudBlazor
+@using FusionEdge.Components.Services
+@using FusionEdge.Data
+@using FusionEdge.Data.Models
+@using FusionEdge.Data.DTOs
+@using Microsoft.EntityFrameworkCore
+@inject IEmailService EmailService
+@inject ISourceConfigurationService SourceConfigurationService
+@inject SessionService Session
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<MudPaper Class="pa-6 mx-auto mb-10"
+          Style="background-color:#1e1e2e; color:#e0e0e0; max-width:900px;">
+    <MudStack Spacing="4">
+
+        <!-- HEADER -->
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Filled.Notifications" Color="Color.Primary" />
+                <MudText Typo="Typo.h6" Style="color:white; font-weight:600;">
+                    Email Notification Rules
+                </MudText>
+            </MudStack>
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           Style="color:#b0b0b0;"
+                           Title="Back"
+                           OnClick="@(() => Navigation.NavigateTo("/Publish"))" />
+        </MudStack>
+
+        <MudText Typo="Typo.body2" Style="color:#b0b0b0;">
+            Configure which email gets notified per event type when a project is published or scheduled.
+        </MudText>
+
+        <MudDivider Style="border-color:#3a3a4a;" />
+
+        <!-- SECTIONS -->
+        @foreach (var section in sections)
+        {
+            var sectionRef = section;
+
+            <MudPaper Class="pa-4"
+                      Style="background-color:#252535; border:1px solid #3a3a4a; border-radius:8px;">
+                <MudStack Spacing="3">
+
+                    <!-- SECTION HEADER -->
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudIcon Icon="@GetSectionIcon(sectionRef.EventType)"
+                                     Style="@string.Format("color:{0};", GetSectionColor(sectionRef.EventType))"
+                                     Size="Size.Small" />
+                            <MudText Typo="Typo.body1"
+                                     Style="@string.Format("font-weight:600; color:{0};", GetSectionColor(sectionRef.EventType))">
+                                @sectionRef.EventType
+                            </MudText>
+                            <MudChip T="string" Size="Size.Small" Color="Color.Default">
+                                @sectionRef.Rules.Count
+                            </MudChip>
+                        </MudStack>
+
+                        <!-- TOGGLE BUTTON -->
+                        <MudIconButton Icon="@(sectionRef.IsExpanded? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)"
+                                       Style="color:#b0b0b0;"
+                                       Size="Size.Small"
+                                       OnClick="@(() => { sectionRef.IsExpanded = !sectionRef.IsExpanded; StateHasChanged(); })" />
+                    </MudStack>
+
+                    <MudDivider Style="border-color:#3a3a4a;" />
+
+                    <!-- COLLAPSIBLE CONTENT -->
+                    @if (sectionRef.IsExpanded)
+                    {
+                        @foreach (var rule in sectionRef.Rules)
+                        {
+                            var ruleRef = rule;
+
+                            <MudGrid AlignItems="Center" Spacing="2">
+
+                                <!-- EMAIL AUTOCOMPLETE -->
+                                <MudItem xs="12" sm="5">
+                                    <MudAutocomplete T="string"
+                                                     @bind-Value="ruleRef.Email"
+                                                     Label="Receiver Email"
+                                                     Variant="Variant.Outlined"
+                                                     Margin="Margin.Dense"
+                                                     Adornment="Adornment.Start"
+                                                     AdornmentIcon="@Icons.Material.Filled.Email"
+                                                     Style="background-color:#1e1e2e; border-radius:4px;"
+                                                     SearchFunc="SearchEmails"
+                                                     Placeholder="Search or enter new email"
+                                                     Strict="false"
+                                                     CoerceText="true"
+                                                     CoerceValue="true" />
+                                </MudItem>
+
+                                <!-- PROJECT MULTISELECT -->
+                                <MudItem xs="12" sm="5">
+                                    <MudSelect T="string"
+                                               MultiSelection="true"
+                                               @bind-SelectedValues="ruleRef.SelectedProjectIds"
+                                               Label="Notify on Projects"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Dense"
+                                               Style="background-color:#1e1e2e; border-radius:4px;"
+                                               MultiSelectionTextFunc="@(selected => string.Format("{0} project(s) selected", selected.Count()))">
+                                        @foreach (var project in scheduledProjects)
+                                        {
+                                            <MudSelectItem T="string" Value="@project.ObjectId">
+                                                @project.Name
+                                            </MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+
+                                <!-- DELETE -->
+                                <MudItem xs="12" sm="2" Class="d-flex justify-center">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                   Color="Color.Error"
+                                                   Size="Size.Medium"
+                                                   OnClick="@(() => RemoveRule(sectionRef, ruleRef))" />
+                                </MudItem>
+
+                            </MudGrid>
+                        }
+
+                        <!-- ADD EMAIL ROW -->
+                        <MudButton StartIcon="@Icons.Material.Filled.Add"
+                                   Variant="Variant.Text"
+                                   Size="Size.Small"
+                                   Style="text-transform:none; color:#b0b0b0; align-self:flex-start;"
+                                   OnClick="@(() => AddRule(sectionRef))">
+                            Add Email
+                        </MudButton>
+                    }
+
+                </MudStack>
+            </MudPaper>
+        }
+
+        <MudDivider Style="border-color:#3a3a4a;" />
+
+        <!-- SAVE -->
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Success"
+                       StartIcon="@Icons.Material.Filled.Save"
+                       Style="text-transform:none;"
+                       OnClick="SaveRules">
+                Save Rules
+            </MudButton>
+        </MudStack>
+
+    </MudStack>
+</MudPaper>
+
+@code {
+
+    private List<ScheduledProjectItem> scheduledProjects = new();
+    private List<string> existingEmails = new();
+
+    public class ScheduledProjectItem
+    {
+        public string ObjectId { get; set; } = "";
+        public string Name { get; set; } = "";
+    }
+
+    public class NotificationRuleRow
+    {
+        public string Email { get; set; } = "";
+        public IEnumerable<string> SelectedProjectIds { get; set; } = new List<string>();
+    }
+
+    public class NotificationSection
+    {
+        public string EventType { get; set; } = "";
+        public List<NotificationRuleRow> Rules { get; set; } = new();
+        public bool IsExpanded { get; set; } = false;
+    }
+
+    private List<NotificationSection> sections = new()
+    {
+        new NotificationSection { EventType = "Success",      Rules = new() { new NotificationRuleRow() } },
+        new NotificationSection { EventType = "Update",       Rules = new() { new NotificationRuleRow() } },
+        new NotificationSection { EventType = "Failed",       Rules = new() { new NotificationRuleRow() } },
+        new NotificationSection { EventType = "New Schedule", Rules = new() { new NotificationRuleRow() } },
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Session.UserId == 0)
+        {
+            Navigation.NavigateTo("/");
+            return;
+        }
+
+        // LOAD SCHEDULED PROJECTS
+        try
+        {
+            using var db = new AppDbContext();
+            await db.Database.EnsureCreatedAsync();
+
+            scheduledProjects = await db.ScheduleSettings
+                .Where(s => s.UserId == Session.UserId)
+                .GroupBy(s => s.Project)
+                .Select(g => new ScheduledProjectItem
+                {
+                    ObjectId = g.Key,
+                    Name = g.First().Projectname
+                })
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format("Error loading scheduled projects: {0}", ex.Message), Severity.Error);
+        }
+
+        // LOAD EXISTING EMAILS
+        try
+        {
+            using var db = new AppDbContext();
+            await db.Database.EnsureCreatedAsync();
+
+            existingEmails = await db.EmailReceivers
+                .Select(e => e.Email)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format("Error loading emails: {0}", ex.Message), Severity.Error);
+        }
+
+        // LOAD SAVED NOTIFICATION RULES INTO SECTIONS
+        try
+        {
+            using var db = new AppDbContext();
+            await db.Database.EnsureCreatedAsync();
+
+            // JOIN EmailNotifications WITH EmailReceivers TO GET EMAIL STRING
+            var saved = await db.EmailNotifications
+                .Join(
+                    db.EmailReceivers,
+                    n => n.EmailId,
+                    r => r.Id,
+                    (n, r) => new
+                    {
+                        n.EmailTemplate,
+                        n.ProjectId,
+                        r.Email
+                    }
+                )
+                .ToListAsync();
+
+            if (saved.Any())
+            {
+                foreach (var section in sections)
+                {
+                    // GET ALL ROWS FOR THIS SECTION'S EVENT TYPE
+                    var sectionData = saved
+                        .Where(s => s.EmailTemplate == section.EventType)
+                        .GroupBy(s => s.Email)
+                        .Select(g => new NotificationRuleRow
+                        {
+                            Email = g.Key,
+                            SelectedProjectIds = g.Select(x => x.ProjectId).ToList()
+                        })
+                        .ToList();
+
+                    if (sectionData.Any())
+                    {
+                        section.Rules = sectionData;
+                        section.IsExpanded = true;  // AUTO EXPAND IF HAS DATA
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format("Error loading saved rules: {0}", ex.Message), Severity.Error);
+        }
+    }
+
+    private void AddRule(NotificationSection section)
+    {
+        section.Rules.Add(new NotificationRuleRow());
+        StateHasChanged();
+    }
+
+    private void RemoveRule(NotificationSection section, NotificationRuleRow rule)
+    {
+        section.Rules.Remove(rule);
+        StateHasChanged();
+    }
+
+    private async Task SaveRules()
+    {
+        // var invalid = sections
+        //     .SelectMany(s => s.Rules)
+        //     .Any(r =>
+        //         string.IsNullOrWhiteSpace(r.Email) ||
+        //         !r.SelectedProjectIds.Any()
+        //     );
+
+        // if (invalid)
+        // {
+        //     Snackbar.Add(
+        //         "Please fill in all email fields and select at least one project.",
+        //         Severity.Warning
+        //     );
+        //     return;
+        // }
+
+        try
+        {
+            // CLEAR OLD RULES FIRST THEN RESAVE
+            using var db = new AppDbContext();
+            await db.Database.EnsureCreatedAsync();
+
+            var emailIds = await db.EmailReceivers
+                .Select(e => e.Id)
+                .ToListAsync();
+
+            var oldRules = await db.EmailNotifications
+                .Where(n => emailIds.Contains(n.EmailId))
+                .ToListAsync();
+
+            db.EmailNotifications.RemoveRange(oldRules);
+            await db.SaveChangesAsync();
+
+            // SAVE NEW RULES
+            foreach (var section in sections)
+            {
+                foreach (var rule in section.Rules)
+                {
+                    if (string.IsNullOrWhiteSpace(rule.Email)) continue;
+
+                    var emailId = await EmailService.ReturnAndFetchEmailId(rule.Email);
+
+                    foreach (var projectId in rule.SelectedProjectIds)
+                    {
+                        var dto = new EmailNotificationDto
+                        {
+                            EmailTemplate = section.EventType,
+                            EmailId = emailId,
+                            ProjectId = projectId
+                        };
+
+                        await EmailService.SaveEmailNotificationReceiverAsync(dto);
+                    }
+                }
+            }
+
+            Snackbar.Add("Notification rules saved!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(string.Format("Error saving rules: {0}", ex.Message), Severity.Error);
+        }
+    }
+
+    private async Task<IEnumerable<string>> SearchEmails(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return existingEmails;
+
+        return existingEmails
+            .Where(e => e.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private string GetSectionIcon(string eventType) => eventType switch
+    {
+        "Success" => Icons.Material.Filled.CheckCircle,
+        "Update" => Icons.Material.Filled.Update,
+        "Failed" => Icons.Material.Filled.Error,
+        "New Schedule" => Icons.Material.Filled.CalendarToday,
+        _ => Icons.Material.Filled.Notifications
+    };
+
+    private string GetSectionColor(string eventType) => eventType switch
+    {
+        "Success" => "#4caf50",
+        "Update" => "#2196f3",
+        "Failed" => "#f44336",
+        "New Schedule" => "#ff9800",
+        _ => "#e0e0e0"
+    };
+}

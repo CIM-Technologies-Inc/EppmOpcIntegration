@@ -13,5 +13,9 @@ namespace FusionEdge.Components.Services
 
         Task<string> SaveEmailReceiverAsync(EmailReceiverDto dto);
 
+        Task<int> ReturnAndFetchEmailId(string email);
+
+        Task<string> SaveEmailNotificationReceiverAsync(EmailNotificationDto dto);
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FusionEdge.Data;
 using FusionEdge.Data.DTOs;
 using FusionEdge.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+
 
 
 namespace FusionEdge.Components.Services
@@ -84,6 +86,7 @@ namespace FusionEdge.Components.Services
                         </body>
                         </html>
                         ";
+
             var message = new MailMessage
             {
                 From = new MailAddress("appleshamdra@gmail.com"),
@@ -119,7 +122,7 @@ namespace FusionEdge.Components.Services
                 var receiver = new EmailReceiver
                 {
                     Email = dto.Email,
-                    ProjectId = dto.ProjectId
+                   // ProjectId = dto.ProjectId
                 };
 
                 db.EmailReceivers.Add(receiver);
@@ -127,6 +130,64 @@ namespace FusionEdge.Components.Services
                 await db.SaveChangesAsync();
 
                 return "Success Saved";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+
+        public async Task<int> ReturnAndFetchEmailId(string email)
+        {
+            try
+            {
+                using var db = new AppDbContext();
+                await db.Database.EnsureCreatedAsync();
+
+                var existing = await db.EmailReceivers
+                    .FirstOrDefaultAsync(e => e.Email == email);
+
+                if (existing != null)
+                    return existing.Id;
+
+                // NOT FOUND — save it and return new Id
+                var receiver = new EmailReceiver { Email = email };
+                db.EmailReceivers.Add(receiver);
+                await db.SaveChangesAsync();
+
+                return receiver.Id;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        public async Task<string> SaveEmailNotificationReceiverAsync(EmailNotificationDto dto)
+        {
+            try
+            {
+                using var db = new AppDbContext();
+
+                await db.Database.EnsureCreatedAsync();
+
+                //var emailId = await ReturnAndFetchEmailId(dto.EmailId.ToString());
+
+                var emailNotification = new EmailNotification
+                {
+                    EmailTemplate = dto.EmailTemplate,
+                    EmailId = dto.EmailId,
+                    ProjectId = dto.ProjectId
+                };
+
+                db.EmailNotifications.Add(emailNotification);
+
+                await db.SaveChangesAsync();
+
+                return "Saved Successfully";
             }
             catch (Exception ex)
             {

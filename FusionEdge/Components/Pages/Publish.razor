@@ -39,8 +39,10 @@
                     @Session.UserName
                 </MudText>
 
-                <MudIcon Icon="@Icons.Material.Filled.AccountCircle"
-                         Style="color:#b0b0b0;" />
+                <MudIconButton Icon="@Icons.Material.Filled.Logout"
+                               Style="color:#b0b0b0;"
+                               Title="Logout"
+                               OnClick="Logout" />
             </MudStack>
 
         </MudStack>
@@ -105,7 +107,7 @@
             </MudSelect>
         }
         
-        <div class="project-details @(string.IsNullOrWhiteSpace(selectedProjectObjectId) ? "" : "show")">
+        @* <div class="project-details @(string.IsNullOrWhiteSpace(selectedProjectObjectId) ? "" : "show")">
             <MudText Typo="Typo.body2" Style="color: #e0e0e0;">Email</MudText>
             <MudTextField T="string"
                           ValueChanged="OnEmailChanged"
@@ -119,7 +121,7 @@
                           Style="background-color: #2a2a3a; border-radius: 4px;"
                           Error="@showEmailValidation"
                           ErrorText="Please enter a valid email address." />
-        </div>
+        </div> *@
 
         <MudStack Spacing="2" Class="mt-4">
             <MudText Typo="Typo.body2" Style="color: #e0e0e0;">Schedule Type</MudText>
@@ -299,6 +301,14 @@
                        Style="padding:8px 20px; text-transform:none;"
                        OnClick="@(() => Navigation.NavigateTo("/DataSourceConfiguration"))">
                 Data Source
+            </MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Secondary"
+                       Size="Size.Medium"
+                       StartIcon="@Icons.Material.Filled.Notifications"
+                       Style="padding:8px 20px; text-transform:none;"
+                       OnClick="@(() => Navigation.NavigateTo("/EmailNotificationRules"))">
+                Notification Rules
             </MudButton>
         </MudStack>
     </MudStack>
@@ -493,9 +503,11 @@
             // var success = await SchedulePublishService.TriggerSchedulePublish();
             // var sourceFile = @"C:\Users\MaechaelGregoreElchi\source\repos\FusionEdge\FusionEdge\Resources\Files\xer\A.test";
             // var destination = @"C:\Users\MaechaelGregoreElchi\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\";
+
             isTesting = true;
 
             using var db = new AppDbContext();
+
             await db.Database.EnsureCreatedAsync();
 
             var latestSchedule = await db.ScheduleSettings.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
@@ -879,12 +891,12 @@
                 return;
             }
 
-            if (string.IsNullOrEmpty(receiverEmail))
-            {
-                ShowWarning("Receiver's email is required!");
-                showEmailValidation = true;
-                return;
-            }
+            // if (string.IsNullOrEmpty(receiverEmail))
+            // {
+            //     ShowWarning("Receiver's email is required!");
+            //     showEmailValidation = true;
+            //     return;
+            // }
 
             using var db = new AppDbContext();
             // await db.Database.EnsureDeletedAsync();
@@ -920,13 +932,13 @@
             db.ScheduleSettings.Add(settings);
             await db.SaveChangesAsync();
 
-            var emailReceiverDto = new EmailReceiverDto
-                {
-                    Email = receiverEmail,
-                    ProjectId = selectedProjectObjectId
-                };
+            // var emailReceiverDto = new EmailReceiverDto
+            //     {
+            //         Email = receiverEmail,
+            //         ProjectId = selectedProjectObjectId
+            //     };
 
-            await EmailService.SaveEmailReceiverAsync(emailReceiverDto);
+            // await EmailService.SaveEmailReceiverAsync(emailReceiverDto);
 
             Snackbar.Add(
                 "Schedule saved successfully!",
@@ -995,6 +1007,12 @@
             isLoadingWorkspaces = false;
             StateHasChanged();
         }
+    }
+
+    private void Logout()
+    {
+        Session.Logout();
+        Navigation.NavigateTo("/", forceLoad: true);
     }
 
     private async Task OnProjectChanged(string projectId)
