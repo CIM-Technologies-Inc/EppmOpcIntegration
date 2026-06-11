@@ -24,8 +24,20 @@ namespace FusionEdge.Components.Services
             var subject = isSuccess ? "File Transfer Successful" : "File Transfer Failed";
             var messageIfNew = EmailTemplate == "Success" ? "Transfer Successful" : EmailTemplate == "Update" ? "Updated Schedule Published Successfully" : EmailTemplate == "Failed" ? "File Transfer Failed" : "New Schedule Uploaded (Action Required)";
             var subHeaderMessage = EmailTemplate == "Success" ? $"{fileName} has been uploaded to:"
-                                 : EmailTemplate == "Update" ? $"The updated schedule({fileName}) has been published successfully, No further action is required!"
-                                 : EmailTemplate == "Failed" ? "Transfer failed" : $"A New schedule({fileName}) has been successfully uploaded to:";
+                                 : EmailTemplate == "Update" ? $"There is an update to the {fileName}."
+                                 : EmailTemplate == "Failed" ? "Transfer failed" : $"A New schedule({fileName}) has been successfully uploaded!:";
+
+            var folderRow = EmailTemplate == "Update"
+                                ? $@"
+                                     <tr style='background-color:#f2f2f2;'>
+                                        <td style='border:1px solid #dddddd;'><strong>Folder</strong></td>
+                                        <td style='border:1px solid #dddddd;'>
+                                            <a href='' target='_blank' style='color:#1a73e8; text-decoration:none;'>
+                                                {folderName}
+                                            </a>
+                                        </td>
+                                    </tr>"
+                                : "";
 
             var htmlBody = $@"
                         <!DOCTYPE html>
@@ -50,12 +62,10 @@ namespace FusionEdge.Components.Services
                               </p>
 
                               <table border='0' cellspacing='0' cellpadding='10' style='border-collapse:collapse; width:100%; border:1px solid #dddddd; font-size:14px;'>
-                                <tr style='background-color:#f2f2f2;'>
-                                  <td style='border:1px solid #dddddd;'><strong>Folder</strong></td>
-                                  <td style='border:1px solid #dddddd;'>{folderName}</td>
-                                </tr>
+                                {folderRow}
+
                                 <tr>
-                                  <td style='border:1px solid #dddddd;'><strong>Upload Time</strong></td>
+                                  <td style='border:1px solid #dddddd;'><strong>Published Time</strong></td>
                                   <td style='border:1px solid #dddddd;'>{uploadTimeUtc}</td>
                                 </tr>
                                 <tr style='background-color:#f9f9f9;'>
@@ -91,8 +101,8 @@ namespace FusionEdge.Components.Services
             var message = new MailMessage
             {
                 From = new MailAddress("appleshamdra@gmail.com"),
-                Subject = "File Transfer Successful",
-                Body = htmlBody,
+                Subject = isSuccess ? "File Transfer Successful" : "File Transfer Failed",
+                Body = isSuccess ? htmlBody : "",
                 IsBodyHtml = true
             };
 
