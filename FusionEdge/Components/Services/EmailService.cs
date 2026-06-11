@@ -1,7 +1,6 @@
 ﻿using FusionEdge.Data;
 using FusionEdge.Data.DTOs;
 using FusionEdge.Data.Models;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,22 +8,25 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore;
 
 
 namespace FusionEdge.Components.Services
 {
     internal class EmailService : IEmailService
     {
-        public async Task<string> SendSuccessEmailAsync(string toEmail, bool isSuccess, string fileName, string folderName, bool isNew)
+        public async Task<string> SendSuccessEmailAsync(string toEmail, bool isSuccess, string fileName, string folderName, string EmailTemplate)
         {
 
             var uploadTimeUtc = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
             var statusText = isSuccess ? "Published Successfully" : "Not Published";
             var statusColor = isSuccess ? "#008000" : "#ff0000"; // green if success, red if fail
             var subject = isSuccess ? "File Transfer Successful" : "File Transfer Failed";
-            var messageIfNew = isNew ? "New Schedule Uploaded (Action Required)" : "File Uploaded";
-           
+            var messageIfNew = EmailTemplate == "Success" ? "Transfer Successful" : EmailTemplate == "Update" ? "Updated Schedule Published Successfully" : EmailTemplate == "Failed" ? "File Transfer Failed" : "New Schedule Uploaded (Action Required)";
+            var subHeaderMessage = EmailTemplate == "Success" ? $"{fileName} has been uploaded to:"
+                                 : EmailTemplate == "Update" ? $"The updated schedule({fileName}) has been published successfully, No further action is required!"
+                                 : EmailTemplate == "Failed" ? "Transfer failed" : $"A New schedule({fileName}) has been successfully uploaded to:";
+
             var htmlBody = $@"
                         <!DOCTYPE html>
                         <html>
@@ -44,7 +46,7 @@ namespace FusionEdge.Components.Services
                             <div style='padding:20px; color:#333333; font-size:14px; line-height:1.6;'>
       
                               <p style='margin-top:0;'>
-                                <strong>{fileName}</strong> has been uploaded to:
+                                {subHeaderMessage}
                               </p>
 
                               <table border='0' cellspacing='0' cellpadding='10' style='border-collapse:collapse; width:100%; border:1px solid #dddddd; font-size:14px;'>
@@ -86,7 +88,6 @@ namespace FusionEdge.Components.Services
                         </body>
                         </html>
                         ";
-
             var message = new MailMessage
             {
                 From = new MailAddress("appleshamdra@gmail.com"),
@@ -122,7 +123,7 @@ namespace FusionEdge.Components.Services
                 var receiver = new EmailReceiver
                 {
                     Email = dto.Email,
-                   // ProjectId = dto.ProjectId
+                    // ProjectId = dto.ProjectId
                 };
 
                 db.EmailReceivers.Add(receiver);
@@ -195,7 +196,6 @@ namespace FusionEdge.Components.Services
             }
 
         }
-
     }
 
 }
