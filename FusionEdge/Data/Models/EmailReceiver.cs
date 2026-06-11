@@ -12,6 +12,6 @@ namespace FusionEdge.Data.Models
 
         public string Email { get; set; } = "";
 
-        public int ProjectId { get; set; }
+       // public int ProjectId { get; set; }
     }
 }

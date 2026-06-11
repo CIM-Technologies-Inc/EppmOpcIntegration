@@ -22,11 +22,6 @@ namespace FusionEdge.Components.Services
             _emailService = emailService;
         }
 
-        private string ToFileName(string name)
-        {
-            return name.Replace(" ", "_");
-        }
-
         private string CleanPathName(string name)
         {
             foreach (var c in Path.GetInvalidFileNameChars())
@@ -51,7 +46,6 @@ namespace FusionEdge.Components.Services
 
             try
             {
-               
                 var baseUrl = config.Domain;
 
                 var raw = $"{config.Username}:{config.PlainPass}";
@@ -135,7 +129,7 @@ namespace FusionEdge.Components.Services
 
                 // ROOT FOLDER
                 var rootFolder =
-                    @"C:\Users\apple\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\";
+                    @"C:\Users\MaechaelGregoreElchi\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\";
 
                 // NEW PROJECTS FOLDER
                 var newProjectFolder =
@@ -176,14 +170,8 @@ namespace FusionEdge.Components.Services
                     Directory.CreateDirectory(targetFolder);
                 }
 
-                // OPTIONAL TIMESTAMP
-                //var timestamp =
-                //    DateTime.Now.ToString("yyyyMMdd_HHmmss");
-
-                // FILE NAME
                 fileName = $"{projectName}{extension}";
 
-                // FULL FILE PATH
                 fullPath =
                     Path.Combine(targetFolder, fileName);
 
