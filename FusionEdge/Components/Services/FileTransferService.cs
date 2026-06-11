@@ -42,6 +42,13 @@ namespace FusionEdge.Components.Services
             string fileName = "";
             string fullPath = "";
             projectName = projectName.Replace("_", " ").Trim();
+
+            using var db = new AppDbContext();
+
+            var emailNotif = await db.EmailNotifications
+                .Where(x => x.ProjectId == projectId.ToString())
+                .ToListAsync();
+
             try
             {
                
@@ -187,12 +194,6 @@ namespace FusionEdge.Components.Services
                     fileBytes
                 );
 
-                using var db = new AppDbContext();
-
-                var emailNotif = await db.EmailNotifications
-                    .Where(x => x.ProjectId == projectId.ToString())
-                    .ToListAsync();
-
                 if (emailNotif.Any())
                 {
 
@@ -205,7 +206,7 @@ namespace FusionEdge.Components.Services
                             receiverEmails.Email,
                             true,
                             fileName,
-                            fullPath,
+                            projectName,
                             r.EmailTemplate
                         );
                     }
@@ -216,13 +217,23 @@ namespace FusionEdge.Components.Services
             catch (Exception ex)
             {
                 // FAILED EMAIL
-                await _emailService.SendSuccessEmailAsync(
-                    "appleshamdra@gmail.com",
-                    false,
-                    fileName ?? "Unknown",
-                    fullPath,
-                    "Failed"
-                );
+                if (emailNotif.Any())
+                {
+
+                    foreach (var r in emailNotif)
+                    {
+                        var receiverEmails = await db.EmailReceivers
+                            .FirstOrDefaultAsync(x => x.Id == r.EmailId);
+
+                        await _emailService.SendSuccessEmailAsync(
+                            receiverEmails.Email,
+                            false,
+                            fileName ?? "Unknown",
+                            projectName,
+                            "Failed"
+                        );
+                    }
+                }
 
                 throw new Exception(ex.Message);
             }
