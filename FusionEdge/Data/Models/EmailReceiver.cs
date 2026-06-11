@@ -9,8 +9,9 @@ namespace FusionEdge.Data.Models
     public class EmailReceiver
     {
         public int Id { get; set; }
-        public string Email { get; set; }
 
-        //public string ProjectId { get; set; }
+        public string Email { get; set; } = "";
+
+        public int ProjectId { get; set; }
     }
 }
