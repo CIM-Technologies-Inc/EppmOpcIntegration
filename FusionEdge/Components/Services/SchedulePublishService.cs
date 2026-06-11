@@ -20,9 +20,9 @@ namespace FusionEdge.Components.Services
         public async Task<bool> TriggerSchedulePublish()
         {
 
-            var sourceFile = @"C:\Users\MaechaelGregoreElchi\source\repos\FusionEdge\FusionEdge\Resources\Files\xer\A.test";
+            var sourceFile = @"C:\Users\apple\source\repos\FusionEdge\FusionEdge\Resources\Files\xer\A.test";
 
-            var destination = @"C:\Users\MaechaelGregoreElchi\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\newProjectFolder";
+            var destination = @"C:\Users\apple\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\newProjectFolder";
 
             using var db = new AppDbContext();
 

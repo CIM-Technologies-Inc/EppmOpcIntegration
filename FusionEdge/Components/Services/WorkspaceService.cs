@@ -54,10 +54,10 @@ namespace FusionEdge.Components.Services
         public async Task<List<Workspace>> GetWorkspaceAsync(string apiSource)
         {
             try
-
             {
                 if (apiSource == "OPC")
                 {
+                    var tt = apiSource;
                     var client = await BuildOpcClientAsync();
                     var response = await client.GetAsync(
                         $"{_opcUrl}/api/restapi/workspace?Fields=ObjectId,Name,Id"
@@ -81,7 +81,7 @@ namespace FusionEdge.Components.Services
                         })
                         .Where(w => !string.IsNullOrEmpty(w.ObjectId))
                         .ToList();
-                        }
+                }
                 else 
                 {
                     var client = await BuildEppmClientAsync();

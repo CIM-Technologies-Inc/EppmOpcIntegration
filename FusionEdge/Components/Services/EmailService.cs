@@ -27,7 +27,7 @@ namespace FusionEdge.Components.Services
                                  : EmailTemplate == "Update" ? $"There is an update to the {fileName}."
                                  : EmailTemplate == "Failed" ? "Transfer failed" : $"A New schedule({fileName}) has been successfully uploaded!:";
 
-            var folderRow = EmailTemplate == "Update"
+            var folderRow = EmailTemplate == "New Schedule"
                                 ? $@"
                                      <tr style='background-color:#f2f2f2;'>
                                         <td style='border:1px solid #dddddd;'><strong>Folder</strong></td>
