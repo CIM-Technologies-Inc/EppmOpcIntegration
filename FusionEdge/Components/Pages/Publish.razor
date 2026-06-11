@@ -601,12 +601,12 @@
             return;
         }
 
-        if (string.IsNullOrEmpty(receiverEmail))
-        {
-            ShowWarning("Receiver's email is required!");
-            showEmailValidation = true;
-            return;
-        }
+        // if (string.IsNullOrEmpty(receiverEmail))
+        // {
+        //     ShowWarning("Receiver's email is required!");
+        //     showEmailValidation = true;
+        //     return;
+        // }
 
         var config = await GetConfigAsync();
         if (config == null) return;
@@ -620,17 +620,6 @@
             StatusMessage = "Exporting project...";
             StateHasChanged();
 
-            // var email = UserService.CurrentUser.Email;
-            // var password = UserService.CurrentUser.Password;
-            // long projectId = long.Parse(selectedProjectObjectId);
-
-            // var savedPath = await FileTransferService.ExportAndSave(projectId, email, password);
-            // var u = config.Username;
-            // var p = config.Password;
-            // var ui = config.UserId;
-            // var s = config.SelectedSource;
-            // var d = config.Domain;
-            // var pp = config.PlainPass;
             var projectName = GetSelectedProjectName();
 
             var savedPath = await FileTransferService.ExportAndSave(
