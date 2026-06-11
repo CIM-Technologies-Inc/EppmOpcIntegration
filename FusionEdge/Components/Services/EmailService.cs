@@ -31,13 +31,14 @@ namespace FusionEdge.Components.Services
             var subHeaderMessage = EmailTemplate == "Success" ? $"{fileName} has been uploaded to:"
                                  : EmailTemplate == "Update" ? $"There is an update to the {fileName}."
                                  : EmailTemplate == "Failed" ? "Transfer failed" : $"A New schedule({fileName}) has been successfully uploaded!:";
+            var fileUri = "file:///" + fullPath.Replace(@"\", "/").Replace(" ", "%20");
 
             var folderRow = EmailTemplate == "New Schedule"
                                 ? $@"
                                      <tr style='background-color:#f2f2f2;'>
                                         <td style='border:1px solid #dddddd;'><strong>Folder</strong></td>
                                         <td style='border:1px solid #dddddd;'>
-                                            <a href='{fullPath}' download style='color:#1a73e8; text-decoration:none;'>
+                                            <a href='{fileUri}' download style='color:#1a73e8; text-decoration:none;'>
                                                 {folderName}
                                             </a>
                                         </td>
