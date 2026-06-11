@@ -168,26 +168,12 @@ namespace FusionEdge.Components.Services
                 fullPath =
                     Path.Combine(targetFolder, fileName);
 
-<<<<<<< HEAD
-=======
 
                 // SAVE NEW FILE
->>>>>>> 5553ce89b44f11bf744598905017c9677dd833fd
                 await File.WriteAllBytesAsync(
                     fullPath,
                     fileBytes
                 );
-<<<<<<< HEAD
-               
-               
-                await _emailService.SendSuccessEmailAsync(
-                    "appleshamdra@gmail.com",
-                    true,
-                    fileName,
-                    fullPath,
-                    true
-                );
-=======
 
                 using var db = new AppDbContext();
 
@@ -212,7 +198,6 @@ namespace FusionEdge.Components.Services
                         );
                     }
                 }
->>>>>>> 5553ce89b44f11bf744598905017c9677dd833fd
 
                 return fullPath;
             }
