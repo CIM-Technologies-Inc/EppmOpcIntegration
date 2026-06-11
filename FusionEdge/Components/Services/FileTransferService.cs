@@ -1,4 +1,5 @@
-﻿using FusionEdge.Data.Models;
+﻿using FusionEdge.Data;
+using FusionEdge.Data.Models;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace FusionEdge.Components.Services
 {
@@ -120,7 +122,7 @@ namespace FusionEdge.Components.Services
 
                 // ROOT FOLDER
                 var rootFolder =
-                    @"C:\Users\MaechaelGregoreElchi\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\";
+                    @"C:\Users\apple\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\";
 
                 // NEW PROJECTS FOLDER
                 var newProjectFolder =
@@ -166,10 +168,16 @@ namespace FusionEdge.Components.Services
                 fullPath =
                     Path.Combine(targetFolder, fileName);
 
+<<<<<<< HEAD
+=======
+
+                // SAVE NEW FILE
+>>>>>>> 5553ce89b44f11bf744598905017c9677dd833fd
                 await File.WriteAllBytesAsync(
                     fullPath,
                     fileBytes
                 );
+<<<<<<< HEAD
                
                
                 await _emailService.SendSuccessEmailAsync(
@@ -179,6 +187,32 @@ namespace FusionEdge.Components.Services
                     fullPath,
                     true
                 );
+=======
+
+                using var db = new AppDbContext();
+
+                var emailNotif = await db.EmailNotifications
+                    .Where(x => x.ProjectId == projectId.ToString())
+                    .ToListAsync();
+
+                if (emailNotif.Any())
+                {
+
+                    foreach (var r in emailNotif)
+                    {
+                        var receiverEmails = await db.EmailReceivers
+                            .FirstOrDefaultAsync(x => x.Id == r.EmailId);
+
+                        await _emailService.SendSuccessEmailAsync(
+                            receiverEmails.Email,
+                            true,
+                            fileName,
+                            fullPath,
+                            r.EmailTemplate
+                        );
+                    }
+                }
+>>>>>>> 5553ce89b44f11bf744598905017c9677dd833fd
 
                 return fullPath;
             }
@@ -190,7 +224,7 @@ namespace FusionEdge.Components.Services
                     false,
                     fileName ?? "Unknown",
                     fullPath,
-                    false
+                    "Failed"
                 );
 
                 throw new Exception(ex.Message);
@@ -223,25 +257,25 @@ namespace FusionEdge.Components.Services
                     File.Copy(sourcePath, destinationPath, true)
                 );
 
-                await _emailService.SendSuccessEmailAsync(
-                    "appleshamdra@gmail.com",
-                    true,
-                    fileName,
-                    destinationFolder,
-                    true
-                );
+                //await _emailService.SendSuccessEmailAsync(
+                //    "appleshamdra@gmail.com",
+                //    true,
+                //    fileName,
+                //    destinationFolder,
+                //    true
+                //);
 
                 return destinationPath;
             }
             catch (Exception ex)
             {
-                await _emailService.SendSuccessEmailAsync(
-                    "appleshamdra@gmail.com",
-                    false,
-                    fileName ?? "Unknown",
-                    destinationFolder,
-                    false
-                );
+                //await _emailService.SendSuccessEmailAsync(
+                //    "appleshamdra@gmail.com",
+                //    false,
+                //    fileName ?? "Unknown",
+                //    destinationFolder,
+                //    false
+                //);
 
                 throw;
             }
