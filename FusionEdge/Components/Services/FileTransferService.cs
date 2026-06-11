@@ -1,4 +1,5 @@
-﻿using FusionEdge.Data.Models;
+﻿using FusionEdge.Data;
+using FusionEdge.Data.Models;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace FusionEdge.Components.Services
 {
@@ -126,7 +128,7 @@ namespace FusionEdge.Components.Services
 
                 // ROOT FOLDER
                 var rootFolder =
-                    @"C:\Users\MaechaelGregoreElchi\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\";
+                    @"C:\Users\apple\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\";
 
                 // NEW PROJECTS FOLDER
                 var newProjectFolder =
@@ -178,17 +180,6 @@ namespace FusionEdge.Components.Services
                 fullPath =
                     Path.Combine(targetFolder, fileName);
 
-                // DELETE OLD XER FILES
-                //var oldFiles =
-                //    Directory.GetFiles(
-                //        targetFolder,
-                //        "*.xer"
-                //    );
-
-                //foreach (var oldFile in oldFiles)
-                //{
-                //    File.Delete(oldFile);
-                //}
 
                 // SAVE NEW FILE
                 await File.WriteAllBytesAsync(
@@ -196,14 +187,29 @@ namespace FusionEdge.Components.Services
                     fileBytes
                 );
 
-                // SUCCESS EMAIL
-                await _emailService.SendSuccessEmailAsync(
-                    "appleshamdra@gmail.com",
-                    true,
-                    fileName,
-                    fullPath,
-                    true
-                );
+                using var db = new AppDbContext();
+
+                var emailNotif = await db.EmailNotifications
+                    .Where(x => x.ProjectId == projectId.ToString())
+                    .ToListAsync();
+
+                if (emailNotif.Any())
+                {
+
+                    foreach (var r in emailNotif)
+                    {
+                        var receiverEmails = await db.EmailReceivers
+                            .FirstOrDefaultAsync(x => x.Id == r.EmailId);
+
+                        await _emailService.SendSuccessEmailAsync(
+                            receiverEmails.Email,
+                            true,
+                            fileName,
+                            fullPath,
+                            r.EmailTemplate
+                        );
+                    }
+                }
 
                 return fullPath;
             }
@@ -215,7 +221,7 @@ namespace FusionEdge.Components.Services
                     false,
                     fileName ?? "Unknown",
                     fullPath,
-                    false
+                    "Failed"
                 );
 
                 throw new Exception(ex.Message);
@@ -248,25 +254,25 @@ namespace FusionEdge.Components.Services
                     File.Copy(sourcePath, destinationPath, true)
                 );
 
-                await _emailService.SendSuccessEmailAsync(
-                    "appleshamdra@gmail.com",
-                    true,
-                    fileName,
-                    destinationFolder,
-                    true
-                );
+                //await _emailService.SendSuccessEmailAsync(
+                //    "appleshamdra@gmail.com",
+                //    true,
+                //    fileName,
+                //    destinationFolder,
+                //    true
+                //);
 
                 return destinationPath;
             }
             catch (Exception ex)
             {
-                await _emailService.SendSuccessEmailAsync(
-                    "appleshamdra@gmail.com",
-                    false,
-                    fileName ?? "Unknown",
-                    destinationFolder,
-                    false
-                );
+                //await _emailService.SendSuccessEmailAsync(
+                //    "appleshamdra@gmail.com",
+                //    false,
+                //    fileName ?? "Unknown",
+                //    destinationFolder,
+                //    false
+                //);
 
                 throw;
             }
