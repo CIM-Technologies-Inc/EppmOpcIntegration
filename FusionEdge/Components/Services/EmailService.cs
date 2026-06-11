@@ -21,7 +21,7 @@ namespace FusionEdge.Components.Services
 
             var uploadTimeUtc = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
             var statusText = isSuccess ? "Published Successfully" : "Not Published";
-            var statusColor = isSuccess ? "#008000" : "#ff0000"; // green if success, red if fail
+            var statusColor = isSuccess ? "#008000" : "#ff0000"; 
             var subject = isSuccess ? "File Transfer Successful" : "File Transfer Failed";
             var messageIfNew = isNew ? "New Schedule Uploaded (Action Required)" : "File Uploaded";
            

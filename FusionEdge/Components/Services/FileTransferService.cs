@@ -20,11 +20,6 @@ namespace FusionEdge.Components.Services
             _emailService = emailService;
         }
 
-        private string ToFileName(string name)
-        {
-            return name.Replace(" ", "_");
-        }
-
         private string CleanPathName(string name)
         {
             foreach (var c in Path.GetInvalidFileNameChars())
@@ -42,7 +37,6 @@ namespace FusionEdge.Components.Services
             projectName = projectName.Replace("_", " ").Trim();
             try
             {
-               
                 var baseUrl = config.Domain;
 
                 var raw = $"{config.Username}:{config.PlainPass}";
@@ -167,36 +161,17 @@ namespace FusionEdge.Components.Services
                     Directory.CreateDirectory(targetFolder);
                 }
 
-                // OPTIONAL TIMESTAMP
-                //var timestamp =
-                //    DateTime.Now.ToString("yyyyMMdd_HHmmss");
-
-                // FILE NAME
                 fileName = $"{projectName}{extension}";
 
-                // FULL FILE PATH
                 fullPath =
                     Path.Combine(targetFolder, fileName);
 
-                // DELETE OLD XER FILES
-                //var oldFiles =
-                //    Directory.GetFiles(
-                //        targetFolder,
-                //        "*.xer"
-                //    );
-
-                //foreach (var oldFile in oldFiles)
-                //{
-                //    File.Delete(oldFile);
-                //}
-
-                // SAVE NEW FILE
                 await File.WriteAllBytesAsync(
                     fullPath,
                     fileBytes
                 );
-
-                // SUCCESS EMAIL
+               
+               
                 await _emailService.SendSuccessEmailAsync(
                     "appleshamdra@gmail.com",
                     true,
@@ -209,7 +184,7 @@ namespace FusionEdge.Components.Services
             }
             catch (Exception ex)
             {
-                // FAILED EMAIL
+              
                 await _emailService.SendSuccessEmailAsync(
                     "appleshamdra@gmail.com",
                     false,
