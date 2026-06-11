@@ -35,7 +35,7 @@ namespace FusionEdge.Components.Services
             try
             {
                 _isRunning = true;
-                await CheckSchedule();
+                //await CheckSchedule();
             }
             catch (Exception ex)
             {
@@ -47,126 +47,126 @@ namespace FusionEdge.Components.Services
             }
         }
 
-        private async Task CheckSchedule()
-        {
-            using var scope = _serviceProvider.CreateScope();
+        //private async Task CheckSchedule()
+        //{
+        //    using var scope = _serviceProvider.CreateScope();
 
-            var fileTransfer = scope.ServiceProvider.GetRequiredService<IFileTransferService>();
+        //    var fileTransfer = scope.ServiceProvider.GetRequiredService<IFileTransferService>();
 
-            using var db = new AppDbContext();
+        //    using var db = new AppDbContext();
 
-            var schedules = await db.ScheduleSettings
-                .Where(x =>
-                    !x.IsExecuted &&
-                    x.ScheduleType != "Never")
-                .ToListAsync();
+        //    var schedules = await db.ScheduleSettings
+        //        .Where(x =>
+        //            !x.IsExecuted &&
+        //            x.ScheduleType != "Never")
+        //        .ToListAsync();
 
-            if (!schedules.Any()) {
-                return;
-            }
+        //    if (!schedules.Any()) {
+        //        return;
+        //    }
             
-            //var config = await db.SourceConfigurations
-            //    .FirstOrDefaultAsync(x => x.UserId == schedule.UserId);
+        //    //var config = await db.SourceConfigurations
+        //    //    .FirstOrDefaultAsync(x => x.UserId == schedule.UserId);
 
-            //if (config == null)
-            //    return;
+        //    //if (config == null)
+        //    //    return;
 
-            foreach (var schedule in schedules)
-            {
-                try
-                {
-                    bool shouldRun = false;
+        //    foreach (var schedule in schedules)
+        //    {
+        //        try
+        //        {
+        //            bool shouldRun = false;
 
-                    var config = await db.SourceConfigurations
-                        .FirstOrDefaultAsync(x => x.UserId == schedule.UserId);
+        //            var config = await db.SourceConfigurations
+        //                .FirstOrDefaultAsync(x => x.UserId == schedule.UserId);
 
-                    if (config == null) {
-                        return;
-                    }
+        //            if (config == null) {
+        //                return;
+        //            }
                         
 
-                    switch (schedule.ScheduleType)
-                    {
-                        case "Custom":
+        //            switch (schedule.ScheduleType)
+        //            {
+        //                case "Custom":
 
-                            shouldRun = schedule.DateTimePublish <= DateTime.Now;
-                            break;
+        //                    shouldRun = schedule.DateTimePublish <= DateTime.Now;
+        //                    break;
 
-                        case "Daily":
+        //                case "Daily":
 
-                            if (DateTime.Now.TimeOfDay < schedule.Time)
-                                break;
+        //                    if (DateTime.Now.TimeOfDay < schedule.Time)
+        //                        break;
 
-                            if (schedule.LastExecuted?.Date == DateTime.Today)
-                                break;
+        //                    if (schedule.LastExecuted?.Date == DateTime.Today)
+        //                        break;
 
-                            shouldRun = true;
-                            break;
+        //                    shouldRun = true;
+        //                    break;
 
-                        case "Weekly":
+        //                case "Weekly":
 
-                            if (string.IsNullOrWhiteSpace(schedule.Days))
-                                break;
+        //                    if (string.IsNullOrWhiteSpace(schedule.Days))
+        //                        break;
 
-                            var selectedDays = schedule.Days
-                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Select(x => x.Trim())
-                                .ToList();
+        //                    var selectedDays = schedule.Days
+        //                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+        //                        .Select(x => x.Trim())
+        //                        .ToList();
 
-                            var today = DateTime.Now.DayOfWeek.ToString();
+        //                    var today = DateTime.Now.DayOfWeek.ToString();
 
-                            if (!selectedDays.Contains(today))
-                                break;
+        //                    if (!selectedDays.Contains(today))
+        //                        break;
 
-                            var scheduledTime = schedule.Time;
+        //                    var scheduledTime = schedule.Time;
 
-                            if (DateTime.Now.TimeOfDay < scheduledTime)
-                                break;
+        //                    if (DateTime.Now.TimeOfDay < scheduledTime)
+        //                        break;
 
-                            if (schedule.LastExecuted?.Date == DateTime.Today)
-                                break;
+        //                    if (schedule.LastExecuted?.Date == DateTime.Today)
+        //                        break;
 
-                            shouldRun = true;
-                            break;
-                    }
+        //                    shouldRun = true;
+        //                    break;
+        //            }
                     
-                    if (!shouldRun)
-                        continue;
+        //            if (!shouldRun)
+        //                continue;
 
-                    long projectId = long.Parse(schedule.Project);
+        //            long projectId = long.Parse(schedule.Project);
 
 
-                    var savePath = await fileTransfer.ExportAndSave(projectId, config, schedule.Projectname);
+        //            var savePath = await fileTransfer.ExportAndSave(projectId, config, schedule.Projectname);
 
-                    OnScheduleResult?.Invoke(new ScheduleRunResult
-                    {
-                        ScheduleId = schedule.UserId,
-                        Project = schedule.Project,
-                        Success = true,
-                        Message = $"Project exported successfully:\n{savePath}"
-                    });
+        //            OnScheduleResult?.Invoke(new ScheduleRunResult
+        //            {
+        //                ScheduleId = schedule.UserId,
+        //                Project = schedule.Project,
+        //                Success = true,
+        //                Message = $"Project exported successfully:\n{savePath}"
+        //            });
 
-                    schedule.LastExecuted = DateTime.Now;
+        //            schedule.LastExecuted = DateTime.Now;
                     
-                    if (schedule.ScheduleType == "Custom")
-                    {
-                        schedule.IsExecuted = true;
-                    }
+        //            if (schedule.ScheduleType == "Custom")
+        //            {
+        //                schedule.IsExecuted = true;
+        //            }
 
-                }
-                catch (Exception ex)
-                {
-                    OnScheduleResult?.Invoke(new ScheduleRunResult
-                    {
-                        ScheduleId = schedule.Id,
-                        Success = false,
-                        Message = ex.Message
-                    });
-                }
-            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            OnScheduleResult?.Invoke(new ScheduleRunResult
+        //            {
+        //                ScheduleId = schedule.Id,
+        //                Success = false,
+        //                Message = ex.Message
+        //            });
+        //        }
+        //    }
 
-            await db.SaveChangesAsync();
-        }
+        //    await db.SaveChangesAsync();
+        //}
 
         public void Dispose()
         {

@@ -5,7 +5,7 @@
 @inject IWorkspaceService WorkspaceService
 @inject ISnackbar Snackbar
 @inject UserService UserService
-@inject ScheduleRunnerService ScheduleRunnerService
+@* @inject ScheduleRunnerService ScheduleRunnerService *@
 @inject NavigationManager Navigation
 @inject ISourceConfigurationService SourceConfigurationService
 @inject SessionService Session
@@ -21,8 +21,8 @@
 @using System.ComponentModel.DataAnnotations
 
 
-<MudPaper Class="pa-4 mx-auto  mb-10"
-          Style="background-color:#1e1e2e; color:#e0e0e0; max-width:900px;">
+<MudPaper Class="pl-14 pr-14 mx-auto mb-10" Elevation="0" Square="true"
+          Style="width:100%; height:100%; background-color:#0D1117; color:#e0e0e0;">
     <MudStack Spacing="2">
         <!-- Header -->
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
@@ -39,10 +39,11 @@
                     @Session.UserName
                 </MudText>
 
-                <MudIconButton Icon="@Icons.Material.Filled.Logout"
+                <MudTooltip Text="Logout" Color="Color.Primary" Placement="Placement.Top">
+                    <MudIconButton Icon="@Icons.Material.Filled.Logout"
                                Style="color:#b0b0b0;"
-                               Title="Logout"
                                OnClick="Logout" />
+                </MudTooltip>
             </MudStack>
 
         </MudStack>
@@ -370,10 +371,10 @@
         return await SourceConfigurationService.GetSingleSourceConfiguration(Session.UserId);
     }
 
-    public void Dispose()
-    {
-        ScheduleRunnerService.OnScheduleResult -= HandleScheduleResult;
-    }
+    // public void Dispose()
+    // {
+    //     ScheduleRunnerService.OnScheduleResult -= HandleScheduleResult;
+    // }
 
     private string GetWorkspaceName(string workspaceId)
     {
@@ -500,10 +501,7 @@
 
         try
         {
-            // var success = await SchedulePublishService.TriggerSchedulePublish();
-            // var sourceFile = @"C:\Users\MaechaelGregoreElchi\source\repos\FusionEdge\FusionEdge\Resources\Files\xer\A.test";
-            // var destination = @"C:\Users\MaechaelGregoreElchi\DC\ACCDocs\ACC - CIM Techsupport\20230627 - ACC Demo Project\Project Files\Schedule tool files\";
-
+            
             isTesting = true;
 
             using var db = new AppDbContext();
@@ -538,12 +536,12 @@
                     Snackbar.Add("Invalid project ID format.", Severity.Warning);
                     return;
                 }
-                if (string.IsNullOrEmpty(receiverEmail))
-                {
-                    ShowWarning("Receiver's email is required!");
-                    showEmailValidation = true;
-                    return;
-                }
+                // if (string.IsNullOrEmpty(receiverEmail))
+                // {
+                //     ShowWarning("Receiver's email is required!");
+                //     showEmailValidation = true;
+                //     return;
+                // }
                 var projectName = GetSelectedProjectName();
 
                 var savedPath = await FileTransferService.ExportAndSave(
@@ -601,12 +599,12 @@
             return;
         }
 
-        if (string.IsNullOrEmpty(receiverEmail))
-        {
-            ShowWarning("Receiver's email is required!");
-            showEmailValidation = true;
-            return;
-        }
+        // if (string.IsNullOrEmpty(receiverEmail))
+        // {
+        //     ShowWarning("Receiver's email is required!");
+        //     showEmailValidation = true;
+        //     return;
+        // }
 
         var config = await GetConfigAsync();
         if (config == null) return;
@@ -620,17 +618,6 @@
             StatusMessage = "Exporting project...";
             StateHasChanged();
 
-            // var email = UserService.CurrentUser.Email;
-            // var password = UserService.CurrentUser.Password;
-            // long projectId = long.Parse(selectedProjectObjectId);
-
-            // var savedPath = await FileTransferService.ExportAndSave(projectId, email, password);
-            // var u = config.Username;
-            // var p = config.Password;
-            // var ui = config.UserId;
-            // var s = config.SelectedSource;
-            // var d = config.Domain;
-            // var pp = config.PlainPass;
             var projectName = GetSelectedProjectName();
 
             var savedPath = await FileTransferService.ExportAndSave(
@@ -684,7 +671,6 @@
             StateHasChanged();
         });
     }
-
 
     private async Task OnWorkspaceChanged(string workspace)
     {
@@ -966,8 +952,8 @@
             isLoadingWorkspaces = true;
         }
 
-        ScheduleRunnerService.OnScheduleResult -= HandleScheduleResult;
-        ScheduleRunnerService.OnScheduleResult += HandleScheduleResult;
+        // ScheduleRunnerService.OnScheduleResult -= HandleScheduleResult;
+        // ScheduleRunnerService.OnScheduleResult += HandleScheduleResult;
 
         var config = await GetConfigAsync();
 
@@ -983,6 +969,7 @@
 
         try
         {
+            var tt = config.SelectedSource;
             workspaces = await WorkspaceService.GetWorkspaceAsync(config.SelectedSource);
 
             if (workspaces.Any())
