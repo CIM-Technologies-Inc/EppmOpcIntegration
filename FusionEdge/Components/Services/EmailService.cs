@@ -23,6 +23,17 @@ namespace FusionEdge.Components.Services
                 DateTime.UtcNow,
                 "Singapore Standard Time"
             );
+            // Convert local path → API URL
+            //var baseFolder = @"C:\Users\apple\DC\";
+
+            // Make sure path format is safe
+            //var relativePath = fullPath.Replace(baseFolder, "");
+
+            // Your API URL
+            //var apiBaseUrl = "https://localhost:7279";
+
+            // Final downloadable link
+            //var downloadUrl = $"{apiBaseUrl}/api/file/download?relativePath={Uri.EscapeDataString(relativePath)}";
             var uploadTimeFormatted = uploadTimePht.ToString("MMM dd, yyyy hh:mm tt") + " PH";
             var statusText = (isSuccess && EmailTemplate != "Failed") ? "Published Successfully" : "Not Published";
             var statusColor = (isSuccess && EmailTemplate != "Failed")  ? "#008000" : "#ff0000"; 
@@ -37,8 +48,8 @@ namespace FusionEdge.Components.Services
                                      <tr style='background-color:#f2f2f2;'>
                                         <td style='border:1px solid #dddddd;'><strong>Folder</strong></td>
                                         <td style='border:1px solid #dddddd;'>
-                                            <a href='{fullPath}' download style='color:#1a73e8; text-decoration:none;'>
-                                                {folderName}
+                                            <a href='{fullPath}' target='_blank' style='color:#1a73e8; text-decoration:none;'>
+                                                {fullPath}
                                             </a>
                                         </td>
                                     </tr>"
