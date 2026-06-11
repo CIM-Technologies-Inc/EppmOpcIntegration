@@ -9,7 +9,7 @@ namespace FusionEdge.Components.Services
 {
     internal interface IEmailService
     {
-        Task<string> SendSuccessEmailAsync(string toEmail, bool isSuccess, string fileName, string folderName, string EmailTemplate);
+        Task<string> SendSuccessEmailAsync(string toEmail, bool isSuccess, string fileName, string folderName, string fullPath, string EmailTemplate);
         
         Task<string> SaveEmailReceiverAsync(EmailReceiverDto dto);
 

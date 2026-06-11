@@ -15,12 +15,17 @@ namespace FusionEdge.Components.Services
 {
     internal class EmailService : IEmailService
     {
-        public async Task<string> SendSuccessEmailAsync(string toEmail, bool isSuccess, string fileName, string folderName, string EmailTemplate)
+        public async Task<string> SendSuccessEmailAsync(string toEmail, bool isSuccess, string fileName, string folderName, string fullPath, string EmailTemplate)
         {
 
-            var uploadTimeUtc = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
-            var statusText = isSuccess ? "Published Successfully" : "Not Published";
-            var statusColor = isSuccess ? "#008000" : "#ff0000"; 
+            //var uploadTimeUtc = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + " UTC";
+            var uploadTimePht = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(
+                DateTime.UtcNow,
+                "Singapore Standard Time"
+            );
+            var uploadTimeFormatted = uploadTimePht.ToString("MMM dd, yyyy hh:mm tt") + " PH";
+            var statusText = (isSuccess && EmailTemplate != "Failed") ? "Published Successfully" : "Not Published";
+            var statusColor = (isSuccess && EmailTemplate != "Failed")  ? "#008000" : "#ff0000"; 
             var subject = isSuccess ? "File Transfer Successful" : "File Transfer Failed";
             var messageIfNew = EmailTemplate == "Success" ? "Transfer Successful" : EmailTemplate == "Update" ? "Updated Schedule Published Successfully" : EmailTemplate == "Failed" ? "File Transfer Failed" : "New Schedule Uploaded (Action Required)";
             var subHeaderMessage = EmailTemplate == "Success" ? $"{fileName} has been uploaded to:"
@@ -32,7 +37,7 @@ namespace FusionEdge.Components.Services
                                      <tr style='background-color:#f2f2f2;'>
                                         <td style='border:1px solid #dddddd;'><strong>Folder</strong></td>
                                         <td style='border:1px solid #dddddd;'>
-                                            <a href='' target='_blank' style='color:#1a73e8; text-decoration:none;'>
+                                            <a href='{fullPath}' download style='color:#1a73e8; text-decoration:none;'>
                                                 {folderName}
                                             </a>
                                         </td>
@@ -66,7 +71,7 @@ namespace FusionEdge.Components.Services
 
                                 <tr>
                                   <td style='border:1px solid #dddddd;'><strong>Published Time</strong></td>
-                                  <td style='border:1px solid #dddddd;'>{uploadTimeUtc}</td>
+                                  <td style='border:1px solid #dddddd;'>{uploadTimeFormatted}</td>
                                 </tr>
                                 <tr style='background-color:#f9f9f9;'>
                                   <td style='border:1px solid #dddddd;'><strong>Status</strong></td>
