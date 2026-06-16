@@ -255,13 +255,6 @@ namespace FusionEdge.Components.Services
                     File.Copy(sourcePath, destinationPath, true)
                 );
 
-                //await _emailService.SendSuccessEmailAsync(
-                //    "appleshamdra@gmail.com",
-                //    true,
-                //    fileName,
-                //    destinationFolder,
-                //    true
-                //);
 
                 return destinationPath;
             }

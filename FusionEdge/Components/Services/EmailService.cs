@@ -202,7 +202,7 @@ namespace FusionEdge.Components.Services
 
                 await db.Database.EnsureCreatedAsync();
 
-                //var emailId = await ReturnAndFetchEmailId(dto.EmailId.ToString());
+                //var emailId = await ReturnAndFetchEmailId(dto.EmailId.ToString()); 
 
                 var emailNotification = new EmailNotification
                 {
