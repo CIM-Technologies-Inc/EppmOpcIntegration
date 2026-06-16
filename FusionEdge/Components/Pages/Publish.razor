@@ -20,8 +20,58 @@
 @using System;
 @using System.ComponentModel.DataAnnotations
 
+@if (isPageLoading)
+{
+    <MudPaper Class="pl-14 pr-14 mx-auto mb-10"
+    Elevation="0"
+    Square="true"
+    Style="width:100%; height:100%; background-color:#0D1117;">
 
-<MudPaper Class="pl-14 pr-14 mx-auto mb-10" Elevation="0" Square="true"
+        <MudStack Spacing="3">
+
+            <!-- Header -->
+            <MudSkeleton Height="40px" Width="250px" />
+            <MudSkeleton Height="20px" Width="600px" />
+
+            <!-- Workspace -->
+            <MudSkeleton Height="20px" Width="120px" />
+            <MudSkeleton Height="56px" Width="100%" />
+
+            <!-- Project -->
+            <MudSkeleton Height="20px" Width="120px" />
+            <MudSkeleton Height="56px" Width="100%" />
+
+            <!-- Schedule Type Cards -->
+            <MudGrid Spacing="3">
+                @for (int i = 0; i < 4; i++)
+                {
+                    <MudItem xs="3">
+                        <MudSkeleton Height="90px" Width="100%" />
+                    </MudItem>
+                }
+            </MudGrid>
+
+            <!-- Schedule Time -->
+            <MudSkeleton Height="20px" Width="180px" />
+            <MudSkeleton Height="56px" Width="100%" />
+
+            <!-- Buttons -->
+            <MudStack Row="true" Spacing="3">
+                <MudSkeleton Height="40px" Width="140px" />
+                <MudSkeleton Height="40px" Width="140px" />
+                <MudSkeleton Height="40px" Width="180px" />
+                <MudSkeleton Height="40px" Width="140px" />
+                <MudSkeleton Height="40px" Width="180px" />
+            </MudStack>
+
+        </MudStack>
+
+    </MudPaper>
+}
+else
+{
+ 
+    <MudPaper Class="pl-14 pr-14 mx-auto mb-10" Elevation="0" Square="true"
           Style="width:100%; height:100%; background-color:#0D1117; color:#e0e0e0;">
     <MudStack Spacing="2">
         <!-- Header -->
@@ -55,12 +105,6 @@
 
         <MudStack Spacing="2" Class="mt-4">
             <MudText Typo="Typo.body2" Style="color: #e0e0e0;">Workspace</MudText>
-            @if (isLoadingWorkspaces)
-            {
-                <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
-            }
-            else
-            {
                 <MudSelect T="string"
                            Margin="Margin.Dense"
                            Variant="Variant.Outlined"
@@ -76,17 +120,9 @@
                         </MudSelectItem>
                     }
                 </MudSelect>
-            }
-            
         </MudStack>
 
         <MudText Typo="Typo.body2">Project</MudText>
-        @if (isLoadingWorkspaces)
-        {
-            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
-        }
-        else
-        {
             <MudSelect T="string"
                        Value="selectedProjectObjectId"
                        ValueChanged="OnProjectChanged"
@@ -104,9 +140,7 @@
                         @project.Name
                     </MudSelectItem>
                 }
-
             </MudSelect>
-        }
         
         @* <div class="project-details @(string.IsNullOrWhiteSpace(selectedProjectObjectId) ? "" : "show")">
             <MudText Typo="Typo.body2" Style="color: #e0e0e0;">Email</MudText>
@@ -255,7 +289,17 @@
                        Size="Size.Large"
                        Style="padding:8px 20px; text-transform:none;"
                        OnClick="SaveSchedule">
-                Save Settings
+                    @if (isSaving)
+                    {
+                        <MudProgressCircular Indeterminate="true"
+                                             Size="Size.Small"
+                                             Class="mr-2" />
+                        <span>Saving...</span>
+                    }
+                    else
+                    {
+                        <span>Save Settings</span>
+                    }
             </MudButton>
 
             <MudButton Variant="Variant.Filled"
@@ -308,13 +352,17 @@
                        Size="Size.Medium"
                        StartIcon="@Icons.Material.Filled.Notifications"
                        Style="padding:8px 20px; text-transform:none;"
-                       OnClick="@(() => Navigation.NavigateTo("/EmailNotificationRules"))">
+                           OnClick="@(() =>
+                           {
+                               Navigation.NavigateTo("/EmailNotificationRules");
+                               ShowStatus = false;
+                           })">
                 Notification Rules
             </MudButton>
         </MudStack>
     </MudStack>
 </MudPaper>
-
+}
 @code {
     private string selectedWorkspace = "";
     private string receiverEmail = "";
@@ -329,7 +377,6 @@
     private Severity StatusSeverity = Severity.Info;
     private bool ShowStatus = false;
     private bool ShowDays = false;
-    private bool isLoadingWorkspaces = false;
     private bool isLoadingProjects = false;
     private List<Workspace> workspaces = new();
     private List<Project> availableProjects = new();
@@ -346,8 +393,10 @@
         "Friday"
     };
     private bool isLoading = false;
+    private bool isSaving = false;
     private bool isTesting = false;
     private bool ShowLoginDialog = false;
+    private bool isPageLoading = true;
 
     [Parameter]
     [SupplyParameterFromQuery]
@@ -501,7 +550,7 @@
 
         try
         {
-            
+
             isTesting = true;
 
             using var db = new AppDbContext();
@@ -531,40 +580,54 @@
                     showProjectValidation = true;
                     return;
                 }
+
                 if (!long.TryParse(selectedProjectObjectId, out long projectId))
                 {
                     Snackbar.Add("Invalid project ID format.", Severity.Warning);
                     return;
                 }
-                // if (string.IsNullOrEmpty(receiverEmail))
-                // {
-                //     ShowWarning("Receiver's email is required!");
-                //     showEmailValidation = true;
-                //     return;
-                // }
+
+                bool haveRec = await db.ScheduleSettings
+                    .AnyAsync(x => x.Project == projectId.ToString());
+
+                if (!haveRec)
+                {
+                    Snackbar.Add("No saved Schedule!", Severity.Warning);
+                    return;
+                }
+
                 var projectName = GetSelectedProjectName();
 
                 var savedPath = await FileTransferService.ExportAndSave(
+                    selectedWorkspace,
                     projectId,
                     config,
-                    projectName
+                    projectName,
+                    Session.UserId
                 );
 
-                // var email = UserService.CurrentUser.Email;
-                // var password = UserService.CurrentUser.Password;
-                // long projectId = long.Parse(selectedProjectObjectId);
+                if (savedPath == "setEmail")
+                {
+                    StatusSeverity = Severity.Warning;
+                    StatusMessage = $"For new schedule go to Notification Rules, under New Schedule add Receiver email and set the correct Project({projectName})";
+                }
+                else if (savedPath == "updateEmail")
+                {
+                    StatusSeverity = Severity.Warning;
+                    StatusMessage = $"For updating schedule go to Notification Rules, under Update add Receiver email and set the correct Project({projectName})";
+                }
+                else
+                {
+                    Snackbar.Configuration.VisibleStateDuration = 1500;
+                    Snackbar.Add(
+                        "Project exported!",
+                        Severity.Info
+                    );
 
-                // var savedPath = await FileTransferService.ExportAndSave(projectId, email, password);
-
-                Snackbar.Configuration.VisibleStateDuration = 1500;
-                Snackbar.Add(
-                    "Project exported!",
-                    Severity.Info
-                );
-
-                selectedProjectObjectId = "";
-                StatusSeverity = Severity.Success;
-                StatusMessage = $"Project exported successfully:\n{savedPath}";
+                    selectedProjectObjectId = "";
+                    StatusSeverity = Severity.Success;
+                    StatusMessage = $"Project exported successfully:\n{savedPath}";
+                }
 
             }else{
                 StatusSeverity = Severity.Info;
@@ -599,13 +662,6 @@
             return;
         }
 
-        // if (string.IsNullOrEmpty(receiverEmail))
-        // {
-        //     ShowWarning("Receiver's email is required!");
-        //     showEmailValidation = true;
-        //     return;
-        // }
-
         var config = await GetConfigAsync();
         if (config == null) return;
 
@@ -621,14 +677,29 @@
             var projectName = GetSelectedProjectName();
 
             var savedPath = await FileTransferService.ExportAndSave(
+                selectedWorkspace,
                 projectId,
                 config,
-                projectName
+                projectName,
+                Session.UserId,
             );
 
-            // selectedProjectObjectId = "";
-            StatusSeverity = Severity.Success;
-            StatusMessage = $"Project exported successfully:\n{savedPath}";
+            if (savedPath == "setEmail")
+            {
+                StatusSeverity = Severity.Warning;
+                StatusMessage = $"For new schedule go to Notification Rules, under New Schedule add Receiver email and set the correct Project({projectName})";
+            } 
+            else if(savedPath == "updateEmail") 
+            {
+                StatusSeverity = Severity.Warning;
+                StatusMessage = $"For updating schedule go to Notification Rules, under Update add Receiver email and set the correct Project({projectName})";
+            }
+            else
+            {
+                StatusSeverity = Severity.Success;
+                StatusMessage = $"Project exported successfully:\n{savedPath}";
+            }
+            
         }
         catch (Exception ex)
         {
@@ -838,6 +909,7 @@
     {
         try
         {
+            isSaving = true;
             if (string.IsNullOrEmpty(selectedWorkspace) && selectedScheduleType != "Never")
             {
                 ShowWarning("Please select workspace!");
@@ -876,13 +948,6 @@
                 showworkspaceValidation = true;
                 return;
             }
-
-            // if (string.IsNullOrEmpty(receiverEmail))
-            // {
-            //     ShowWarning("Receiver's email is required!");
-            //     showEmailValidation = true;
-            //     return;
-            // }
 
             using var db = new AppDbContext();
             // await db.Database.EnsureDeletedAsync();
@@ -940,6 +1005,10 @@
             StatusSeverity = Severity.Error;
             ShowStatus = true;
         }
+        finally
+        {
+            isSaving = false;
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -949,7 +1018,7 @@
         {
             Snackbar.Configuration.VisibleStateDuration = 1500;
             Snackbar.Add("Login successful!", Severity.Success);
-            isLoadingWorkspaces = true;
+            isPageLoading = true;
         }
 
         // ScheduleRunnerService.OnScheduleResult -= HandleScheduleResult;
@@ -960,11 +1029,11 @@
         if (config == null)
         {
             await Task.Delay(1000);
-            isLoadingWorkspaces = false;
+            isPageLoading = false;
             return;
         }
 
-        isLoadingWorkspaces = true;
+        isPageLoading = true;
         StateHasChanged();
 
         try
@@ -991,7 +1060,7 @@
         }
         finally
         {
-            isLoadingWorkspaces = false;
+            isPageLoading = false;
             StateHasChanged();
         }
     }

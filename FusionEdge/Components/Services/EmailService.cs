@@ -56,6 +56,10 @@ namespace FusionEdge.Components.Services
                                     </tr>"
                                 : "";
 
+            var importantNote = EmailTemplate != "Failed" 
+                                ? "<p style='margin-top:16px; color:#000;'><strong>Important:</strong> You must publish this schedule in <strong>Schedule</strong> before it becomes available.</p>" 
+                                : "";
+
             var htmlBody = $@"
                         <!DOCTYPE html>
                         <html>
@@ -100,10 +104,8 @@ namespace FusionEdge.Components.Services
                                   </td>
                                 </tr>
                               </table>
-
-                              <p style='margin-top:16px; color:#000;'>
-                                <strong>Important:</strong> You must publish this schedule in <strong>Schedule</strong> before it becomes available.
-                              </p>
+                              
+                             {importantNote}
 
                               <p style='margin-top:16px; color:#666; font-size:12px;'>
                                 This is an automated notification — please do not reply.
@@ -118,7 +120,7 @@ namespace FusionEdge.Components.Services
             var message = new MailMessage
             {
                 From = new MailAddress("appleshamdra@gmail.com"),
-                Subject = isSuccess ? "File Transfer Successful" : "File Transfer Failed",
+                Subject = isSuccess && EmailTemplate != "Failed" ? "File Transfer Successful" : "File Transfer Failed",
                 Body = isSuccess ? htmlBody : "",
                 IsBodyHtml = true
             };

@@ -31,7 +31,7 @@ namespace FusionEdge
                 Title = "FusionEdge"
             };
 
-            window.Width = 1200;
+            window.Width = 1000;
             window.Height = 800;
 
             return window;
