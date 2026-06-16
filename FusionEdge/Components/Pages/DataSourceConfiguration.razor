@@ -8,145 +8,213 @@
 @inject SessionService Session
 @inject ISnackbar Snackbar
 
+@if (isPageLoading) {
+    <MudPaper Class="pa-6 mx-auto"
+              Style="background-color:#1e1e2e; color:#e0e0e0; max-width:500px; border-radius:16px;">
 
-<MudPaper Class="pa-6 mx-auto"
-          Style="background-color:#1e1e2e; color:#e0e0e0; max-width:500px; border-radius:16px;">
-    <MudStack Spacing="4">
+        <MudStack Spacing="4">
 
-        <!-- Header -->
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-            <MudTooltip Text="Publish Page" Arrow="true" Placement="Placement.Top" Color="Color.Primary" Typo="Typo.button">
-                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
-                               Color="Color.Default"
-                               OnClick="GoBackToPublish"
-                               AriaLabel="Back" />
-            </MudTooltip>
-            <MudIcon Icon="@Icons.Material.Filled.SettingsInputComponent" Color="Color.Primary" />
-            <MudText Typo="Typo.h6" Style="color:white; font-weight:500;">
-                Data Source Configuration
-            </MudText>
-        </MudStack>
+            <!-- Header -->
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                             Width="40px"
+                             Height="40px" />
 
-        <MudText Typo="Typo.body2" Style="color:#b0b0b0;">
-            Choose your data source and enter the credentials used to connect.
-        </MudText>
+                <MudSkeleton SkeletonType="SkeletonType.Text"
+                             Width="220px"
+                             Height="40px" />
 
-        <!-- ── SOURCE TOGGLE ── -->
-        <MudStack Spacing="2">
-            <MudText Typo="Typo.body2" Style="color:#e0e0e0;">Data Source</MudText>
-            <MudStack Row="true" Spacing="3">
-                <MudPaper Class="pa-4 d-flex flex-column align-center justify-center flex-grow-1 source-card"
-                          Style="@GetSourceStyle("EPPM")"
-                          @onclick="@(() => SelectSource("EPPM"))">
-                    <MudIcon Icon="@Icons.Material.Filled.Storage"
-                             Size="Size.Medium"
-                             Style="color:#e0e0e0;" />
-                    <MudText Typo="Typo.body2" Class="mt-2" Style="color:#e0e0e0;">
-                        On-Premises (EPPM)
-                    </MudText>
-                </MudPaper>
-                <MudPaper Class="pa-4 d-flex flex-column align-center justify-center flex-grow-1 source-card"
-                          Style="@GetSourceStyle("OPC")"
-                          @onclick="@(() => SelectSource("OPC"))">
-                    <MudIcon Icon="@Icons.Material.Filled.Cloud"
-                             Size="Size.Medium"
-                             Style="color:#e0e0e0;" />
-                    <MudText Typo="Typo.body2" Class="mt-2" Style="color:#e0e0e0;">
-                        Oracle Cloud (OPC)
-                    </MudText>
-                </MudPaper>
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                             Width="40px"
+                             Height="40px" />
             </MudStack>
+
+            <!-- Description -->
+            <MudSkeleton SkeletonType="SkeletonType.Text"
+                         Width="100%"
+                         Height="20px" />
+
+            <!-- Source Cards -->
+            <MudStack Row="true" Spacing="3">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                             Width="100%"
+                             Height="90px" />
+
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                             Width="100%"
+                             Height="90px" />
+            </MudStack>
+
+            <!-- Domain -->
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                         Width="100%"
+                         Height="56px" />
+
+            <!-- Username -->
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                         Width="100%"
+                         Height="56px" />
+
+            <!-- Password -->
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                         Width="100%"
+                         Height="56px" />
+
+            <!-- Buttons -->
+            <MudStack Row="true" Spacing="2">
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                             Width="100%"
+                             Height="48px" />
+
+                <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                             Width="100%"
+                             Height="48px" />
+            </MudStack>
+
         </MudStack>
 
-        <!-- ── EPPM DOMAIN (only for EPPM) ── -->
-        @if (selectedSource == "EPPM")
-        {
+    </MudPaper>
+}
+else {
+    <MudPaper Class="pa-6 mx-auto"
+    Style="background-color:#1e1e2e; color:#e0e0e0; max-width:500px; border-radius:16px;">
+        <MudStack Spacing="4">
+
+            <!-- Header -->
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Justify="Justify.SpaceBetween">
+                <MudIcon Icon="@Icons.Material.Filled.SettingsInputComponent" Color="Color.Primary" />
+                <MudText Typo="Typo.h6" Style="color:white; font-weight:500;">
+                    Data Source Configuration
+                </MudText>
+                <MudTooltip Text="Back" Arrow="true" Placement="Placement.Top" Color="Color.Primary" Typo="Typo.button">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                    Color="Color.Default"
+                    OnClick="GoBackToPublish"
+                    AriaLabel="Back" />
+                </MudTooltip>
+            </MudStack>
+
+            <MudText Typo="Typo.body2" Style="color:#b0b0b0;">
+                Choose your data source and enter the credentials used to connect.
+            </MudText>
+
+            <!-- ── SOURCE TOGGLE ── -->
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.body2" Style="color:#e0e0e0;">Data Source</MudText>
+                <MudStack Row="true" Spacing="3">
+                    <MudPaper Class="pa-4 d-flex flex-column align-center justify-center flex-grow-1 source-card"
+                    Style="@GetSourceStyle("EPPM")"
+                    @onclick="@(() => SelectSource("EPPM"))">
+                        <MudIcon Icon="@Icons.Material.Filled.Storage"
+                        Size="Size.Medium"
+                        Style="color:#e0e0e0;" />
+                        <MudText Typo="Typo.body2" Class="mt-2" Style="color:#e0e0e0;">
+                            On-Premises (EPPM)
+                        </MudText>
+                    </MudPaper>
+                    <MudPaper Class="pa-4 d-flex flex-column align-center justify-center flex-grow-1 source-card"
+                    Style="@GetSourceStyle("OPC")"
+                    @onclick="@(() => SelectSource("OPC"))">
+                        <MudIcon Icon="@Icons.Material.Filled.Cloud"
+                        Size="Size.Medium"
+                        Style="color:#e0e0e0;" />
+                        <MudText Typo="Typo.body2" Class="mt-2" Style="color:#e0e0e0;">
+                            Oracle Cloud (OPC)
+                        </MudText>
+                    </MudPaper>
+                </MudStack>
+            </MudStack>
+
+            <!-- ── EPPM DOMAIN (only for EPPM) ── -->
+            @if (selectedSource == "EPPM")
+            {
+                <MudTextField T="string"
+                Label="Domain / Server URL"
+                Variant="Variant.Outlined"
+                Margin="Margin.Dense"
+                @bind-Value="domain"
+                Placeholder="https://your-eppm-server.com"
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Filled.Language"
+                Style="background-color:#2a2a3a; border-radius:4px;" />
+            }
+
+            <!-- ── CREDENTIALS ── -->
             <MudTextField T="string"
-                          Label="Domain / Server URL"
-                          Variant="Variant.Outlined"
-                          Margin="Margin.Dense"
-                          @bind-Value="domain"
-                          Placeholder="https://your-eppm-server.com"
-                          Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Language"
-                          Style="background-color:#2a2a3a; border-radius:4px;" />
-        }
+            Label="Username"
+            Variant="Variant.Outlined"
+            Margin="Margin.Dense"
+            @bind-Value="username"
+            Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Person"
+            Style="background-color:#2a2a3a; border-radius:4px;" />
 
-        <!-- ── CREDENTIALS ── -->
-        <MudTextField T="string"
-                      Label="Username"
-                      Variant="Variant.Outlined"
-                      Margin="Margin.Dense"
-                      @bind-Value="username"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Person"
-                      Style="background-color:#2a2a3a; border-radius:4px;" />
+            <MudTextField T="string"
+            Label="Password"
+            Variant="Variant.Outlined"
+            Margin="Margin.Dense"
+            @bind-Value="password"
+            InputType="@passwordInputType"
+            Adornment="Adornment.End"
+            AdornmentIcon="@passwordEyeIcon"
+            OnAdornmentClick="TogglePassword"
+            AdornmentAriaLabel="Toggle password visibility"
+            Style="background-color:#2a2a3a; border-radius:4px;" />
 
-        <MudTextField T="string"
-                      Label="Password"
-                      Variant="Variant.Outlined"
-                      Margin="Margin.Dense"
-                      @bind-Value="password"
-                      InputType="@passwordInputType"
-                      Adornment="Adornment.End"
-                      AdornmentIcon="@passwordEyeIcon"
-                      OnAdornmentClick="TogglePassword"
-                      AdornmentAriaLabel="Toggle password visibility"
-                      Style="background-color:#2a2a3a; border-radius:4px;" />
+            <!-- ── STATUS ── -->
+            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            {
+                <MudAlert Severity="@statusSeverity"
+                Variant="Variant.Filled"
+                Dense="true"
+                ShowCloseIcon="true"
+                CloseIconClicked="CloseAlert">
+                    @statusMessage
+                </MudAlert>
+            }
 
-        <!-- ── STATUS ── -->
-        @if (!string.IsNullOrWhiteSpace(statusMessage))
-        {
-            <MudAlert Severity="@statusSeverity"
-                      Variant="Variant.Filled"
-                      Dense="true"
-                      ShowCloseIcon="true"
-                      CloseIconClicked="CloseAlert">
-                @statusMessage
-            </MudAlert>
-        }
+            <!-- ── ACTIONS ── -->
+            <MudStack Row="true" Spacing="2" Class="mt-2">
+                <MudButton Variant="Variant.Filled"
+                Color="Color.Primary"
+                FullWidth
+                Size="Size.Large"
+                Disabled="isSaving"
+                OnClick="SaveConfiguration">
+                    @if (isSaving)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        <span>Saving...</span>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Save" Class="mr-2" />
+                        <span>Save Configuration</span>
+                    }
+                </MudButton>
 
-        <!-- ── ACTIONS ── -->
-        <MudStack Row="true" Spacing="2" Class="mt-2">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       FullWidth
-                       Size="Size.Large"
-                       Disabled="isSaving"
-                       OnClick="SaveConfiguration">
-                @if (isSaving)
-                {
-                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-                    <span>Saving...</span>
-                }
-                else
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.Save" Class="mr-2" />
-                    <span>Save Configuration</span>
-                }
-            </MudButton>
+                <MudButton Variant="Variant.Outlined"
+                Color="Color.Info"
+                FullWidth
+                Size="Size.Large"
+                Disabled="isTesting"
+                OnClick="TestConnection">
+                    @if (isTesting)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        <span>Testing...</span>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.NetworkCheck" Class="mr-2" />
+                        <span>Test Connection</span>
+                    }
+                </MudButton>
+            </MudStack>
 
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Info"
-                       FullWidth
-                       Size="Size.Large"
-                       Disabled="isTesting"
-                       OnClick="TestConnection">
-                @if (isTesting)
-                {
-                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-                    <span>Testing...</span>
-                }
-                else
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.NetworkCheck" Class="mr-2" />
-                    <span>Test Connection</span>
-                }
-            </MudButton>
         </MudStack>
-
-    </MudStack>
-</MudPaper>
+    </MudPaper>
+}
 
 @code {
 
@@ -161,6 +229,7 @@
     private bool showPassword = false;
     private bool isSaving = false;
     private bool isTesting = false;
+    private bool isPageLoading = true;
     private string statusMessage = string.Empty;
     private Severity statusSeverity = Severity.Info;
 
@@ -184,6 +253,7 @@
         try
         {
             // var userId = Preferences.Get("logged_in_user_id", 0);
+            isPageLoading = true;
             var userId = Session.UserId;
 
             if (userId == 0)
@@ -205,6 +275,11 @@
         {
             statusMessage = $"Error loading configuration: {ex.Message}";
             statusSeverity = Severity.Error;
+        }
+        finally
+        {
+            await Task.Delay(500);
+            isPageLoading = false;
         }
     }
 
