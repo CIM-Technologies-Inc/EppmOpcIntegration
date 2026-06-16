@@ -11,6 +11,6 @@ namespace FusionEdge.Components.Services
     interface IFileTransferService
     {
         Task<string> MoveFileAsync(string sourcepath, string destinationfolder);
-        Task<string> ExportAndSave(long projectId, SourceConfiguration config, string projectName);
+        Task<string> ExportAndSave(string Workspace, long projectId, SourceConfiguration config, string projectName, int UserId);
     }
 }

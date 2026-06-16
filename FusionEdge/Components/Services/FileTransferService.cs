@@ -32,7 +32,7 @@ namespace FusionEdge.Components.Services
             return name.Trim();
         }
 
-        public async Task<string> ExportAndSave(long projectId, SourceConfiguration config, string projectName)
+        public async Task<string> ExportAndSave(string Workspace, long projectId, SourceConfiguration config, string projectName, int UserId)
         {
             string fileName = "";
             string fullPath = "";
@@ -156,14 +156,47 @@ namespace FusionEdge.Components.Services
 
                 string targetFolder;
 
+                bool exists = await db.EmailNotifications
+                            .AnyAsync(x => x.ProjectId == projectId.ToString());
+
                 // CHECK IF PROJECT EXISTS IN ROOT
                 if (Directory.Exists(existingProjectPath))
                 {
+                  
+                    if (!exists)
+                    {
+                        return "updateEmail";
+                    }
+
                     // SAVE TO EXISTING PROJECT FOLDER
                     targetFolder = existingProjectPath;
                 }
                 else
                 {
+                    if (!Directory.Exists(newProjectPath)) 
+                    {
+
+                        if (!exists)
+                        {
+                            var settings = new ScheduleSetting
+                            {
+                                Workspace = Workspace,
+                                Project = projectId.ToString(),
+                                Projectname = projectName,
+                                ScheduleType = "Daily",
+                                Days = "",
+                                Time = DateTime.Now.TimeOfDay,
+                                DateTimePublish = DateTime.Now,
+                                UserId = UserId,
+                            };
+
+                            db.ScheduleSettings.Add(settings);
+                            await db.SaveChangesAsync();
+
+                            return "setEmail";
+                        }
+                    }
+                                       
                     // CREATE NEW PROJECT FOLDER
                     targetFolder = newProjectPath;
 
