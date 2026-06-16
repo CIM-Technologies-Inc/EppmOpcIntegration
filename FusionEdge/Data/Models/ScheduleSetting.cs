@@ -25,5 +25,6 @@ namespace FusionEdge.Data.Models
         public DateTime? LastExecuted { get; set; }
 
         public int UserId { get; set; }
+
     }
 }
