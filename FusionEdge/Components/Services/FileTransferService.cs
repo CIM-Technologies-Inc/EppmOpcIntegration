@@ -26,6 +26,7 @@ namespace FusionEdge.Components.Services
         {
             foreach (var c in Path.GetInvalidFileNameChars())
             {
+                if (c == ' ') continue; // preserve spaces
                 name = name.Replace(c, '_');
             }
 
@@ -138,20 +139,20 @@ namespace FusionEdge.Components.Services
                 // ENSURE FOLDERS EXIST
                 Directory.CreateDirectory(rootFolder);
                 Directory.CreateDirectory(newProjectFolder);
-
+                var cleanProjectName = CleanPathName(projectName);
 
                 // EXISTING PROJECT PATH
                 var existingProjectPath =
                     Path.Combine(
                         rootFolder,
-                        CleanPathName(projectName)
+                        cleanProjectName
                     );
 
                 // NEW PROJECT PATH
                 var newProjectPath =
                     Path.Combine(
                         newProjectFolder,
-                        projectName
+                        cleanProjectName
                     );
 
                 string targetFolder;
@@ -160,6 +161,9 @@ namespace FusionEdge.Components.Services
                             .AnyAsync(x => x.ProjectId == projectId.ToString());
 
                 // CHECK IF PROJECT EXISTS IN ROOT
+
+                bool isNewProject = !Directory.Exists(existingProjectPath);
+
                 if (Directory.Exists(existingProjectPath))
                 {
                   
@@ -173,30 +177,11 @@ namespace FusionEdge.Components.Services
                 }
                 else
                 {
-                    if (!Directory.Exists(newProjectPath)) 
+                    if (!exists)
                     {
-
-                        if (!exists)
-                        {
-                            var settings = new ScheduleSetting
-                            {
-                                Workspace = Workspace,
-                                Project = projectId.ToString(),
-                                Projectname = projectName,
-                                ScheduleType = "Daily",
-                                Days = "",
-                                Time = DateTime.Now.TimeOfDay,
-                                DateTimePublish = DateTime.Now,
-                                UserId = UserId,
-                            };
-
-                            db.ScheduleSettings.Add(settings);
-                            await db.SaveChangesAsync();
-
-                            return "setEmail";
-                        }
+                        return "updateEmail";
                     }
-                                       
+
                     // CREATE NEW PROJECT FOLDER
                     targetFolder = newProjectPath;
 
@@ -215,10 +200,18 @@ namespace FusionEdge.Components.Services
                     fileBytes
                 );
 
+               
+
                 if (emailNotif.Any())
                 {
 
-                    foreach (var r in emailNotif)
+                    var templatesToSend = isNewProject ? new[] { "New Schedule", "Success" } : new[] { "Update", "Success" };
+
+                    var matchedNotifs = emailNotif
+                        .Where(x => templatesToSend.Contains(x.EmailTemplate))
+                        .ToList();
+
+                    foreach (var r in matchedNotifs)
                     {
                         var receiverEmails = await db.EmailReceivers
                             .FirstOrDefaultAsync(x => x.Id == r.EmailId);
@@ -238,11 +231,13 @@ namespace FusionEdge.Components.Services
             }
             catch (Exception ex)
             {
-                // FAILED EMAIL
                 if (emailNotif.Any())
                 {
+                    var failedNotifs = emailNotif
+                        .Where(x => x.EmailTemplate == "Failed")
+                        .ToList();
 
-                    foreach (var r in emailNotif)
+                    foreach (var r in failedNotifs)
                     {
                         var receiverEmails = await db.EmailReceivers
                             .FirstOrDefaultAsync(x => x.Id == r.EmailId);

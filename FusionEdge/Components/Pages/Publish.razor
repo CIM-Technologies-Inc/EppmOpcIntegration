@@ -624,7 +624,7 @@ else
                         Severity.Info
                     );
 
-                    selectedProjectObjectId = "";
+                    //selectedProjectObjectId = "";
                     StatusSeverity = Severity.Success;
                     StatusMessage = $"Project exported successfully:\n{savedPath}";
                 }
@@ -681,7 +681,7 @@ else
                 projectId,
                 config,
                 projectName,
-                Session.UserId,
+                Session.UserId
             );
 
             if (savedPath == "setEmail")
