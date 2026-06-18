@@ -13,8 +13,8 @@
 
 @if (isPageLoading)
 {
-    <MudPaper Class="pa-6 mx-auto mb-10"
-              Style="background-color:#1e1e2e; color:#e0e0e0; max-width:900px;">
+    <MudPaper Class="pa-6 mx-auto mb-10 mt-4"
+              Style="background-color: var(--mud-palette-surface); max-width:900px;">
         <MudStack Spacing="4">
 
             <!-- Header -->
@@ -36,7 +36,7 @@
             @for (int i = 0; i < 3; i++)
             {
                 <MudPaper Class="pa-4"
-                          Style="background-color:#252535; border:1px solid #3a3a4a; border-radius:8px;">
+                          Style="background-color: var(--mud-palette-surface); border:1px solid; border-radius:8px;">
                     <MudStack Spacing="3">
 
                         <!-- Section Header -->
@@ -114,26 +114,25 @@
 }
 else
 {
-    <MudPaper Class="pa-6 mx-auto mb-10"
-    Style="background-color:#1e1e2e; color:#e0e0e0; max-width:900px;">
+    <MudPaper Class="pa-6 mx-auto mb-10 mt-4"
+              Style="background-color: var(--mud-palette-surface); max-width:900px;">
         <MudStack Spacing="4">
 
             <!-- HEADER -->
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                     <MudIcon Icon="@Icons.Material.Filled.Notifications" Color="Color.Primary" />
-                    <MudText Typo="Typo.h6" Style="color:white; font-weight:600;">
+                    <MudText Typo="Typo.h6" Style="font-weight:600;" Class="mud-text-TextPrimary">
                         Email Notification Rules
                     </MudText>
                 </MudStack>
                 <MudTooltip Text="Back" Color="Color.Primary" Placement="Placement.Top">
                     <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
-                                   Style="color:#b0b0b0;"
                                    OnClick="@(() => Navigation.NavigateTo("/Publish"))" />
                 </MudTooltip>
             </MudStack>
 
-            <MudText Typo="Typo.body2" Style="color:#b0b0b0;">
+            <MudText Typo="Typo.body2" Class="mud-text-TextPrimary">
                 Configure which email gets notified per event type when a project is published or scheduled.
             </MudText>
 
@@ -145,7 +144,7 @@ else
                 var sectionRef = section;
 
                 <MudPaper Class="pa-4"
-                Style="background-color:#252535; border:1px solid #3a3a4a; border-radius:8px;">
+                          Style="background-color: var(--mud-palette-surface); border-radius:8px;">
                     <MudStack Spacing="3">
 
                         <!-- SECTION HEADER -->
@@ -190,12 +189,13 @@ else
                                         Margin="Margin.Dense"
                                         Adornment="Adornment.Start"
                                         AdornmentIcon="@Icons.Material.Filled.Email"
-                                        Style="background-color:#1e1e2e; border-radius:4px;"
+                                        Style="background-color: var(--mud-palette-background); border-radius:4px;"
                                         SearchFunc="SearchEmails"
                                         Placeholder="Search or enter new email"
                                         Strict="false"
                                         CoerceText="true"
-                                        CoerceValue="true" />
+                                        CoerceValue="true" 
+                                        Class="mud-theme-background" />
                                     </MudItem>
 
                                     <!-- PROJECT MULTISELECT -->
@@ -206,7 +206,7 @@ else
                                         Label="Notify on Projects"
                                         Variant="Variant.Outlined"
                                         Margin="Margin.Dense"
-                                        Style="background-color:#1e1e2e; border-radius:4px;"
+                                        Style="background-color: var(--mud-palette-background); border-radius:4px;"
                                         MultiSelectionTextFunc="@(selected => string.Format("{0} project(s) selected", selected.Count()))">
                                             @foreach (var project in scheduledProjects)
                                             {

@@ -175,24 +175,8 @@ namespace FusionEdge.Components.Services
                 {
                     if (!Directory.Exists(newProjectPath)) 
                     {
-
                         if (!exists)
                         {
-                            var settings = new ScheduleSetting
-                            {
-                                Workspace = Workspace,
-                                Project = projectId.ToString(),
-                                Projectname = projectName,
-                                ScheduleType = "Daily",
-                                Days = "",
-                                Time = DateTime.Now.TimeOfDay,
-                                DateTimePublish = DateTime.Now,
-                                UserId = UserId,
-                            };
-
-                            db.ScheduleSettings.Add(settings);
-                            await db.SaveChangesAsync();
-
                             return "setEmail";
                         }
                     }
