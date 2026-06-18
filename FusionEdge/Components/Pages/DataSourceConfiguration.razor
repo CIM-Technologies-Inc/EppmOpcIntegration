@@ -10,7 +10,7 @@
 
 @if (isPageLoading) {
     <MudPaper Class="pa-6 mx-auto"
-              Style="background-color:#1e1e2e; color:#e0e0e0; max-width:500px; border-radius:16px;">
+              Style="background-color: var(--mud-palette-surface); max-width:500px; border-radius:16px;">
 
         <MudStack Spacing="4">
 
@@ -77,13 +77,13 @@
 }
 else {
     <MudPaper Class="pa-6 mx-auto"
-    Style="background-color:#1e1e2e; color:#e0e0e0; max-width:500px; border-radius:16px;">
+              Style="background-color: var(--mud-palette-surface); max-width:500px; border-radius:16px;">
         <MudStack Spacing="4">
 
             <!-- Header -->
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Justify="Justify.SpaceBetween">
                 <MudIcon Icon="@Icons.Material.Filled.SettingsInputComponent" Color="Color.Primary" />
-                <MudText Typo="Typo.h6" Style="color:white; font-weight:500;">
+                <MudText Typo="Typo.h6" Style="font-weight:500;" Class="mud-text-TextPrimary">
                     Data Source Configuration
                 </MudText>
                 <MudTooltip Text="Back" Arrow="true" Placement="Placement.Top" Color="Color.Primary" Typo="Typo.button">
@@ -94,31 +94,33 @@ else {
                 </MudTooltip>
             </MudStack>
 
-            <MudText Typo="Typo.body2" Style="color:#b0b0b0;">
+            <MudText Typo="Typo.body2" Class="mud-text-TextPrimary">
                 Choose your data source and enter the credentials used to connect.
             </MudText>
 
             <!-- ── SOURCE TOGGLE ── -->
             <MudStack Spacing="2">
-                <MudText Typo="Typo.body2" Style="color:#e0e0e0;">Data Source</MudText>
+                <MudText Typo="Typo.body2" Class="mud-text-TextPrimary">Data Source</MudText>
                 <MudStack Row="true" Spacing="3">
                     <MudPaper Class="pa-4 d-flex flex-column align-center justify-center flex-grow-1 source-card"
                     Style="@GetSourceStyle("EPPM")"
+                    Elevation="@GetScheduleTypeElevation("EPPM")"
                     @onclick="@(() => SelectSource("EPPM"))">
                         <MudIcon Icon="@Icons.Material.Filled.Storage"
                         Size="Size.Medium"
-                        Style="color:#e0e0e0;" />
-                        <MudText Typo="Typo.body2" Class="mt-2" Style="color:#e0e0e0;">
+                                 Class="mud-text-TextPrimary" />
+                        <MudText Typo="Typo.body2" Class="mt-2 mud-text-TextPrimary">
                             On-Premises (EPPM)
                         </MudText>
                     </MudPaper>
                     <MudPaper Class="pa-4 d-flex flex-column align-center justify-center flex-grow-1 source-card"
                     Style="@GetSourceStyle("OPC")"
+                    Elevation="@GetScheduleTypeElevation("OPC")"
                     @onclick="@(() => SelectSource("OPC"))">
                         <MudIcon Icon="@Icons.Material.Filled.Cloud"
                         Size="Size.Medium"
-                        Style="color:#e0e0e0;" />
-                        <MudText Typo="Typo.body2" Class="mt-2" Style="color:#e0e0e0;">
+                                 Class="mud-text-TextPrimary" />
+                        <MudText Typo="Typo.body2" Class="mt-2 mud-text-TextPrimary">
                             Oracle Cloud (OPC)
                         </MudText>
                     </MudPaper>
@@ -129,37 +131,40 @@ else {
             @if (selectedSource == "EPPM")
             {
                 <MudTextField T="string"
-                Label="Domain / Server URL"
-                Variant="Variant.Outlined"
-                Margin="Margin.Dense"
-                @bind-Value="domain"
-                Placeholder="https://your-eppm-server.com"
-                Adornment="Adornment.Start"
-                AdornmentIcon="@Icons.Material.Filled.Language"
-                Style="background-color:#2a2a3a; border-radius:4px;" />
+                              Class="mud-theme-background"
+                                Label="Domain / Server URL"
+                                Variant="Variant.Outlined"
+                                Margin="Margin.Dense"
+                                @bind-Value="domain"
+                                Placeholder="https://your-eppm-server.com"
+                                Adornment="Adornment.Start"
+                                AdornmentIcon="@Icons.Material.Filled.Language"
+                                Style="border-radius:4px;" />
             }
 
             <!-- ── CREDENTIALS ── -->
             <MudTextField T="string"
-            Label="Username"
-            Variant="Variant.Outlined"
-            Margin="Margin.Dense"
-            @bind-Value="username"
-            Adornment="Adornment.Start"
-            AdornmentIcon="@Icons.Material.Filled.Person"
-            Style="background-color:#2a2a3a; border-radius:4px;" />
+                            Label="Username"
+                            Class="mud-theme-background"
+                            Variant="Variant.Outlined"
+                            Margin="Margin.Dense"
+                            @bind-Value="username"
+                            Adornment="Adornment.Start"
+                            AdornmentIcon="@Icons.Material.Filled.Person"
+                            Style="border-radius:4px;" />
 
             <MudTextField T="string"
-            Label="Password"
-            Variant="Variant.Outlined"
-            Margin="Margin.Dense"
-            @bind-Value="password"
-            InputType="@passwordInputType"
-            Adornment="Adornment.End"
-            AdornmentIcon="@passwordEyeIcon"
-            OnAdornmentClick="TogglePassword"
-            AdornmentAriaLabel="Toggle password visibility"
-            Style="background-color:#2a2a3a; border-radius:4px;" />
+                            Class="mud-theme-background"
+                            Label="Password"
+                            Variant="Variant.Outlined"
+                            Margin="Margin.Dense"
+                            @bind-Value="password"
+                            InputType="@passwordInputType"
+                            Adornment="Adornment.End"
+                            AdornmentIcon="@passwordEyeIcon"
+                            OnAdornmentClick="TogglePassword"
+                            AdornmentAriaLabel="Toggle password visibility"
+                            Style="border-radius:4px;" />
 
             <!-- ── STATUS ── -->
             @if (!string.IsNullOrWhiteSpace(statusMessage))
@@ -232,6 +237,8 @@ else {
     private bool isPageLoading = true;
     private string statusMessage = string.Empty;
     private Severity statusSeverity = Severity.Info;
+    [CascadingParameter]
+    public bool _isDarkMode { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -318,23 +325,32 @@ else {
         StateHasChanged();
     }
 
+    private int GetScheduleTypeElevation(string type)
+    {
+        if (!_isDarkMode)
+            return selectedSource == type ? 12 : 2;
+
+        return 1;
+    }
+
     private string GetSourceStyle(string source)
     {
         var baseStyle =
-        "background-color:#2a2a3a;" +
+        "background-color: var(--mud-palette-background);" +
         "cursor:pointer;" +
         "min-height:80px;" +
         "border-radius:8px;" +
         "transition:all 0.2s ease;";
 
-        if (string.IsNullOrEmpty(selectedSource))
+        if (_isDarkMode)
         {
-            return baseStyle;
+            // Dark Mode: keep borders
+            return selectedSource == source
+                ? baseStyle + "border:2px solid #1976d2;"
+                : baseStyle + "border:1px solid #3a3a4a;";
         }
-
-        return selectedSource == source
-            ? baseStyle + "border:2px solid #1976d2; background-color:#2d3f5f;"
-            : baseStyle;
+       
+        return baseStyle + "border:none;";
     }
 
     // ── VALIDATE ──

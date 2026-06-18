@@ -2,30 +2,80 @@
 @using MudBlazor
 
 
-<MudThemeProvider Theme="_theme" IsDarkMode="true" />
+@* <MudThemeProvider Theme="_theme" IsDarkMode="true" /> *@
+<MudThemeProvider Theme="_theme" IsDarkMode="@_isDarkMode" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudLayout>
+@* <MudLayout>
     <MudMainContent>
         @Body
+    </MudMainContent>
+</MudLayout> *@
+<MudLayout>
+    <MudMainContent Style="padding-top: 12px;">
+
+        <MudStack Row="true"
+                  Justify="Justify.FlexEnd"
+                  AlignItems="AlignItems.Center"
+                  Class="pr-6">
+
+            <MudText Typo="Typo.caption">
+                @(_isDarkMode ? "Dark Mode" : "Light Mode")
+            </MudText>
+
+            <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode)"
+                           Color="@(_isDarkMode ? Color.Warning : Color.Primary)"
+                           OnClick="ToggleTheme" />
+
+        </MudStack>
+        <CascadingValue Value="_isDarkMode">
+            @Body
+        </CascadingValue>
     </MudMainContent>
 </MudLayout>
 
 @code {
+    private bool _isDarkMode = true;
+
+    private void ToggleTheme()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+
     private readonly MudTheme _theme = new()
     {
+        PaletteLight = new PaletteLight
+        {
+            Background = "#f5f5f5",
+            Surface = "#ffffff",
+            Primary = "#6366f1",
+            Secondary = "#ec4899",
+            TextPrimary = "#1a1a1a"
+        },
         PaletteDark = new PaletteDark
         {
-            TextPrimary = Colors.Shades.White,
-       
-
             Background = "#0f172a",
-            Surface = "#1a2433",
-
+            Surface = "#141f38",
             Primary = "#6366f1",
-            Secondary = "#ec4899"
+            Secondary = "#ec4899",
+            TextPrimary = "#ffffff"
         }
     };
+
+    // private readonly MudTheme _theme = new()
+    // {
+    //     PaletteDark = new PaletteDark
+    //     {
+    //         TextPrimary = Colors.Shades.White,
+       
+
+    //         Background = "#0f172a",
+    //         Surface = "#1a2433",
+
+    //         Primary = "#6366f1",
+    //         Secondary = "#ec4899"
+    //     }
+    // };
 }
