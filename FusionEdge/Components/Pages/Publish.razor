@@ -960,7 +960,7 @@ else
             {
                 nextRun = GetNextRun(latestSchedule);
             }
-            
+
             savedSchedules = await db.ScheduleSettings.OrderByDescending(s => s.Id).ToListAsync();
         }
         catch (Exception ex)
@@ -1170,6 +1170,22 @@ else
             {
                 selectedWorkspace = workspaces.First().ObjectId;
                 await LoadProjectsForWorkspace(selectedWorkspace);
+            }
+            else
+            {
+                using var db = new AppDbContext();
+
+                bool haveRec = await db.ScheduleSettings
+                    .AnyAsync(x => x.UserId == Session.UserId);
+
+                if (haveRec)
+                {
+                    Snackbar.Configuration.VisibleStateDuration = 1500;
+                    Snackbar.Add("Failed to load workspace, Can't reach to server!", Severity.Error);
+
+                    isPageLoading = false;
+                    return;
+                }
             }
 
             await LoadLatestSchedule();            
