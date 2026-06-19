@@ -1,18 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @using MudBlazor
 
-
-@* <MudThemeProvider Theme="_theme" IsDarkMode="true" /> *@
 <MudThemeProvider Theme="_theme" IsDarkMode="@_isDarkMode" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-@* <MudLayout>
-    <MudMainContent>
-        @Body
-    </MudMainContent>
-</MudLayout> *@
 <MudLayout>
     <MudMainContent Style="padding-top: 12px;">
 
@@ -21,7 +14,7 @@
                   AlignItems="AlignItems.Center"
                   Class="pr-6">
 
-            <MudText Typo="Typo.caption">
+            <MudText Typo="Typo.caption" Class="@_textClass">
                 @(_isDarkMode ? "Dark Mode" : "Light Mode")
             </MudText>
 
@@ -38,10 +31,19 @@
 
 @code {
     private bool _isDarkMode = true;
+    private string _textClass = "theme-label";
 
-    private void ToggleTheme()
+    private async Task ToggleTheme()
     {
+        _textClass = "theme-label theme-label-changing";
+        StateHasChanged();
+
+        await Task.Delay(150);
+
         _isDarkMode = !_isDarkMode;
+
+        _textClass = "theme-label";
+        StateHasChanged();
     }
 
     private readonly MudTheme _theme = new()
@@ -63,19 +65,4 @@
             TextPrimary = "#ffffff"
         }
     };
-
-    // private readonly MudTheme _theme = new()
-    // {
-    //     PaletteDark = new PaletteDark
-    //     {
-    //         TextPrimary = Colors.Shades.White,
-       
-
-    //         Background = "#0f172a",
-    //         Surface = "#1a2433",
-
-    //         Primary = "#6366f1",
-    //         Secondary = "#ec4899"
-    //     }
-    // };
 }

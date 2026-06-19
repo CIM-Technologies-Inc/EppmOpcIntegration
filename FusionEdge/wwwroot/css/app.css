@@ -1,7 +1,7 @@
 ﻿/*#if (SampleContent)*/
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  
+    
 }
 
 a, .btn-link {
@@ -70,6 +70,16 @@ h1:focus {
 
 .status-bar-safe-area {
     display: none;
+}
+
+.theme-label {
+    display: inline-block;
+    transition: all 0.25s ease;
+}
+
+.theme-label-changing {
+    opacity: 0;
+    transform: translateY(-8px);
 }
 
 @supports (-webkit-touch-callout: none) {
