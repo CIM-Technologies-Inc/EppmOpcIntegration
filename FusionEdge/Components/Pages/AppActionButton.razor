@@ -1,0 +1,71 @@
+
+@using MudBlazor
+
+
+<MudTooltip Text="@Tooltip" Placement="Placement.Top" Color="@Color">
+
+    <MudButton Class="@($"app-action-btn {Class}")"
+               Variant="@Variant"
+               Color="@Color"
+               Size="@Size"
+               Disabled="@Disabled"
+               OnClick="@OnClick"
+               Style="@($"...; display:flex; align-items:center; justify-content:center;")">
+
+        @if (Loading)
+        {
+            <MudProgressCircular Indeterminate="true"
+                                 Size="Size.Small"
+                                 Class="mr-2" />
+            <span>@LoadingText</span>
+        }
+        else
+        {
+            <span class="btn-content">
+                <MudStack Spacing="0">
+
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="@Icon" Size="Size.Small" />
+                        <MudText Typo="Typo.subtitle2">@Text</MudText>
+                    </MudStack>
+
+                    @if (!string.IsNullOrWhiteSpace(SubText))
+                    {
+                        <MudText Typo="Typo.subtitle2">
+                            @SubText
+                        </MudText>
+                    }
+
+                </MudStack>
+            </span>
+
+            <span class="btn-icon-only">
+                <MudIcon Icon="@Icon" />
+            </span>
+        }
+
+    </MudButton>
+
+</MudTooltip>
+
+@code {
+    [Parameter] public string Text { get; set; } = "";
+    [Parameter] public string SubText { get; set; } = "";
+    [Parameter] public string Icon { get; set; } = "";
+
+    [Parameter] public string Tooltip { get; set; } = "";
+
+    [Parameter] public Variant Variant { get; set; } = Variant.Filled;
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public Size Size { get; set; } = Size.Medium;
+
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public string LoadingText { get; set; } = "Loading...";
+
+    [Parameter] public bool Disabled { get; set; }
+
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    [Parameter] public string Style { get; set; } = "";
+    [Parameter] public string Class { get; set; } = "";
+}

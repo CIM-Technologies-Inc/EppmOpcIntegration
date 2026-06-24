@@ -82,6 +82,43 @@ h1:focus {
     transform: translateY(-8px);
 }
 
+.app-action-btn .btn-icon-only {
+    display: none;
+}
+
+/* desktop */
+.app-action-btn .btn-content {
+    display: inline-flex;
+    padding: 8px;
+    border-radius: 10px;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+
+    .app-action-btn {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        max-width: 44px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+        .app-action-btn .btn-content {
+            display: none !important;
+        }
+
+        .app-action-btn .btn-icon-only {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+}
+
 @supports (-webkit-touch-callout: none) {
     .status-bar-safe-area {
         display: flex;
