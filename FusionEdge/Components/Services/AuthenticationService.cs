@@ -164,7 +164,7 @@ namespace FusionEdge.Components.Services
             try
             {
                 // HARDCODED FOR TESTING — replace with projectId when confirmed working
-                var testProjectId = "4357";
+                var testProjectId = projectId;
 
                 Console.WriteLine($"[DEBUG] GetProjectEmails — testing with projectId = {testProjectId}");
 
