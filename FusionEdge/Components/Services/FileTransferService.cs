@@ -262,7 +262,7 @@ namespace FusionEdge.Components.Services
             string fileName = "";
 
             try
-            {
+            {   
                 fileName = Path.GetFileName(sourcePath);
 
                 if (!File.Exists(sourcePath))

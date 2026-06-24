@@ -6,6 +6,7 @@
 @using FusionEdge.Data.DTOs
 @using Microsoft.EntityFrameworkCore
 @inject IEmailService EmailService
+@inject IAuthenticationService AuthenticationService
 @inject ISourceConfigurationService SourceConfigurationService
 @inject SessionService Session
 @inject NavigationManager Navigation
@@ -16,99 +17,49 @@
     <MudPaper Class="pa-10 mx-auto mb-10 mt-4"
               Style="background-color: var(--mud-palette-surface); max-width:900px;">
         <MudStack Spacing="4">
-
-            <!-- Header -->
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                     <MudSkeleton SkeletonType="SkeletonType.Text" Width="32px" Height="32px" />
                     <MudSkeleton SkeletonType="SkeletonType.Text" Width="250px" Height="30px" />
                 </MudStack>
-
                 <MudSkeleton SkeletonType="SkeletonType.Text" Width="32px" Height="32px" />
             </MudStack>
-
-            <!-- Description -->
             <MudSkeleton SkeletonType="SkeletonType.Text" Width="100%" Height="20px" />
             <MudSkeleton SkeletonType="SkeletonType.Text" Width="70%" Height="20px" />
-
             <MudDivider />
-
             @for (int i = 0; i < 3; i++)
             {
-                <MudPaper Class="pa-4"
-                          Style="background-color: var(--mud-palette-surface); border:1px solid; border-radius:8px;">
+                <MudPaper Class="pa-4" Style="background-color: var(--mud-palette-surface); border:1px solid; border-radius:8px;">
                     <MudStack Spacing="3">
-
-                        <!-- Section Header -->
-                        <MudStack Row="true"
-                                  AlignItems="AlignItems.Center"
-                                  Justify="Justify.SpaceBetween">
-
-                            <MudStack Row="true"
-                                      AlignItems="AlignItems.Center"
-                                      Spacing="2">
-
-                                <MudSkeleton SkeletonType="SkeletonType.Text"
-                                             Width="24px"
-                                             Height="24px" />
-
-                                <MudSkeleton SkeletonType="SkeletonType.Text"
-                                             Width="180px"
-                                             Height="24px" />
-
-                                <MudSkeleton SkeletonType="SkeletonType.Text"
-                                             Width="40px"
-                                             Height="24px" />
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudSkeleton SkeletonType="SkeletonType.Text" Width="24px" Height="24px" />
+                                <MudSkeleton SkeletonType="SkeletonType.Text" Width="180px" Height="24px" />
+                                <MudSkeleton SkeletonType="SkeletonType.Text" Width="40px" Height="24px" />
                             </MudStack>
-
-                            <MudSkeleton SkeletonType="SkeletonType.Text"
-                                         Width="24px"
-                                         Height="24px" />
+                            <MudSkeleton SkeletonType="SkeletonType.Text" Width="24px" Height="24px" />
                         </MudStack>
-
                         <MudDivider />
-
-                        <!-- Fake Rules -->
                         @for (int j = 0; j < 2; j++)
                         {
                             <MudGrid Spacing="2">
-
                                 <MudItem xs="12" sm="5">
-                                    <MudSkeleton SkeletonType="SkeletonType.Rectangle"
-                                                 Width="100%"
-                                                 Height="56px" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="56px" />
                                 </MudItem>
-
                                 <MudItem xs="12" sm="5">
-                                    <MudSkeleton SkeletonType="SkeletonType.Rectangle"
-                                                 Width="100%"
-                                                 Height="56px" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" Height="56px" />
                                 </MudItem>
-
                                 <MudItem xs="12" sm="2">
-                                    <MudSkeleton SkeletonType="SkeletonType.Text"
-                                                 Width="40px"
-                                                 Height="40px" />
+                                    <MudSkeleton SkeletonType="SkeletonType.Text" Width="40px" Height="40px" />
                                 </MudItem>
-
                             </MudGrid>
                         }
-
-                        <MudSkeleton SkeletonType="SkeletonType.Text"
-                                     Width="120px"
-                                     Height="24px" />
-
+                        <MudSkeleton SkeletonType="SkeletonType.Text" Width="120px" Height="24px" />
                     </MudStack>
                 </MudPaper>
             }
-
             <MudDivider />
-
-            <!-- Save Button -->
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle"
-                         Width="150px"
-                         Height="40px" />
-
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="150px" Height="40px" />
         </MudStack>
     </MudPaper>
 }
@@ -143,8 +94,7 @@ else
             {
                 var sectionRef = section;
 
-                <MudPaper Class="pa-4"
-                          Elevation="8"
+                <MudPaper Class="pa-4" Elevation="8"
                           Style="background-color: var(--mud-palette-surface); border-radius:8px;">
                     <MudStack Spacing="3">
 
@@ -152,22 +102,20 @@ else
                         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                                 <MudIcon Icon="@GetSectionIcon(sectionRef.EventType)"
-                                Style="@string.Format("color:{0};", GetSectionColor(sectionRef.EventType))"
-                                Size="Size.Small" />
+                                         Style="@string.Format("color:{0};", GetSectionColor(sectionRef.EventType))"
+                                         Size="Size.Small" />
                                 <MudText Typo="Typo.body1"
-                                Style="@string.Format("font-weight:600; color:{0};", GetSectionColor(sectionRef.EventType))">
+                                         Style="@string.Format("font-weight:600; color:{0};", GetSectionColor(sectionRef.EventType))">
                                     @sectionRef.EventType
                                 </MudText>
                                 <MudChip T="string" Size="Size.Small" Color="Color.Default">
                                     @sectionRef.Rules.Count
                                 </MudChip>
                             </MudStack>
-
-                            <!-- TOGGLE BUTTON -->
                             <MudIconButton Icon="@(sectionRef.IsExpanded? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)"
-                            Style="color:#b0b0b0;"
-                            Size="Size.Small"
-                            OnClick="@(() => { sectionRef.IsExpanded = !sectionRef.IsExpanded; StateHasChanged(); })" />
+                                           Style="color:#b0b0b0;"
+                                           Size="Size.Small"
+                                           OnClick="@(() => { sectionRef.IsExpanded = !sectionRef.IsExpanded; StateHasChanged(); })" />
                         </MudStack>
 
                         <MudDivider Style="border-color:#3a3a4a;" />
@@ -184,31 +132,33 @@ else
                                     <!-- EMAIL AUTOCOMPLETE -->
                                     <MudItem xs="12" sm="5">
                                         <MudAutocomplete T="string"
-                                        @bind-Value="ruleRef.Email"
-                                        Label="Receiver Email"
-                                        Variant="Variant.Outlined"
-                                        Margin="Margin.Dense"
-                                        Adornment="Adornment.Start"
-                                        AdornmentIcon="@Icons.Material.Filled.Email"
-                                        Style="background-color: var(--mud-palette-background); border-radius:4px;"
-                                        SearchFunc="SearchEmails"
-                                        Placeholder="Search or enter new email"
-                                        Strict="false"
-                                        CoerceText="true"
-                                        CoerceValue="true" 
-                                        Class="mud-theme-background" />
+                                                         @bind-Value="ruleRef.Email"
+                                                         Label="Receiver Email"
+                                                         Variant="Variant.Outlined"
+                                                         Margin="Margin.Dense"
+                                                         Adornment="Adornment.Start"
+                                                         AdornmentIcon="@Icons.Material.Filled.Email"
+                                                         Style="background-color: var(--mud-palette-background); border-radius:4px;"
+                                                         SearchFunc="SearchEmails"
+                                                         Placeholder="Search or enter new email"
+                                                         Strict="false"
+                                                         CoerceText="true"
+                                                         CoerceValue="true"
+                                                         Class="mud-theme-background" />
                                     </MudItem>
 
                                     <!-- PROJECT MULTISELECT -->
                                     <MudItem xs="12" sm="5">
                                         <MudSelect T="string"
-                                        MultiSelection="true"
-                                        @bind-SelectedValues="ruleRef.SelectedProjectIds"
-                                        Label="Notify on Projects"
-                                        Variant="Variant.Outlined"
-                                        Margin="Margin.Dense"
-                                        Style="background-color: var(--mud-palette-background); border-radius:4px;"
-                                        MultiSelectionTextFunc="@(selected => string.Format("{0} project(s) selected", selected.Count()))">
+                                                   MultiSelection="true"
+                                                   SelectedValues="ruleRef.SelectedProjectIds"
+                                                   SelectedValuesChanged="@(async (IEnumerable<string> selected) => await OnProjectSelectionChanged(ruleRef, selected))"
+                                                   Label="Notify on Projects"
+                                                   Variant="Variant.Outlined"
+                                                   Margin="Margin.Dense"
+                                                   Style="background-color: var(--mud-palette-background); border-radius:4px;"
+                                                   MultiSelectionTextFunc="@(list => $"{list.Count()} project(s) selected")"
+                                                   ToStringFunc="@(id => scheduledProjects.FirstOrDefault(p => p.ObjectId == id)?.Name ?? id)">
                                             @foreach (var project in scheduledProjects)
                                             {
                                                 <MudSelectItem T="string" Value="@project.ObjectId">
@@ -216,14 +166,61 @@ else
                                                 </MudSelectItem>
                                             }
                                         </MudSelect>
+
+                                        <!-- EMAIL HINT CHIPS PER SELECTED PROJECT -->
+                                        @foreach (var projectId in ruleRef.SelectedProjectIds)
+                                        {
+                                            if (loadingProjectEmails.Contains(projectId))
+                                            {
+                                                var loadingName = scheduledProjects.FirstOrDefault(p => p.ObjectId == projectId)?.Name ?? projectId;
+                                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="mt-1">
+                                                    <MudText Typo="Typo.caption" Class="mud-text-secondary" Style="font-size:11px;">
+                                                        @loadingName:
+                                                    </MudText>
+                                                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                                                </MudStack>
+                                            }
+                                            else if (projectEmailCache.TryGetValue(projectId, out var projEmails))
+                                            {
+                                                var projName = scheduledProjects.FirstOrDefault(p => p.ObjectId == projectId)?.Name ?? projectId;
+                                                <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="1" Class="mt-1">
+                                                    <MudText Typo="Typo.caption" Class="mud-text-secondary"
+                                                             Style="align-self:center; font-size:11px;">
+                                                        @projName:
+                                                    </MudText>
+                                                    @if (projEmails.Any())
+                                                    {
+                                                        @foreach (var email in projEmails)
+                                                        {
+                                                            var emailRef = email;
+                                                            <MudTooltip Text="Click to use this email" Placement="Placement.Top">
+                                                                <MudChip T="string"
+                                                                         Size="Size.Small"
+                                                                         Color="Color.Info"
+                                                                         Icon="@Icons.Material.Filled.Email"
+                                                                         OnClick="@(() => { ruleRef.Email = emailRef; StateHasChanged(); })">
+                                                                    @emailRef
+                                                                </MudChip>
+                                                            </MudTooltip>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <MudText Typo="Typo.caption" Style="color:#888; font-size:11px;">
+                                                            No emails found
+                                                        </MudText>
+                                                    }
+                                                </MudStack>
+                                            }
+                                        }
                                     </MudItem>
 
                                     <!-- DELETE -->
                                     <MudItem xs="12" sm="2" Class="d-flex justify-center">
                                         <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                        Color="Color.Error"
-                                        Size="Size.Medium"
-                                        OnClick="@(() => RemoveRule(sectionRef, ruleRef))" />
+                                                       Color="Color.Error"
+                                                       Size="Size.Medium"
+                                                       OnClick="@(() => RemoveRule(sectionRef, ruleRef))" />
                                     </MudItem>
 
                                 </MudGrid>
@@ -231,10 +228,10 @@ else
 
                             <!-- ADD EMAIL ROW -->
                             <MudButton StartIcon="@Icons.Material.Filled.Add"
-                            Variant="Variant.Text"
-                            Size="Size.Small"
-                            Style="text-transform:none; color:#b0b0b0; align-self:flex-start;"
-                            OnClick="@(() => AddRule(sectionRef))">
+                                       Variant="Variant.Text"
+                                       Size="Size.Small"
+                                       Style="text-transform:none; color:#b0b0b0; align-self:flex-start;"
+                                       OnClick="@(() => AddRule(sectionRef))">
                                 Add Email
                             </MudButton>
                         }
@@ -248,10 +245,10 @@ else
             <!-- SAVE -->
             <MudStack Row="true" Spacing="2">
                 <MudButton Variant="Variant.Filled"
-                Color="Color.Success"
-                StartIcon="@Icons.Material.Filled.Save"
-                Style="text-transform:none;"
-                OnClick="SaveRules">
+                           Color="Color.Success"
+                           StartIcon="@Icons.Material.Filled.Save"
+                           Style="text-transform:none;"
+                           OnClick="SaveRules">
                     Save Rules
                 </MudButton>
             </MudStack>
@@ -259,11 +256,14 @@ else
         </MudStack>
     </MudPaper>
 }
+
 @code {
 
     private List<ScheduledProjectItem> scheduledProjects = new();
     private List<string> existingEmails = new();
     private bool isPageLoading = true;
+    private Dictionary<string, List<string>> projectEmailCache = new();
+    private HashSet<string> loadingProjectEmails = new();
 
     public class ScheduledProjectItem
     {
@@ -348,7 +348,6 @@ else
             using var db = new AppDbContext();
             await db.Database.EnsureCreatedAsync();
 
-            // JOIN EmailNotifications WITH EmailReceivers TO GET EMAIL STRING
             var saved = await db.EmailNotifications
                 .Join(
                     db.EmailReceivers,
@@ -367,7 +366,6 @@ else
             {
                 foreach (var section in sections)
                 {
-                    // GET ALL ROWS FOR THIS SECTION'S EVENT TYPE
                     var sectionData = saved
                         .Where(s => s.EmailTemplate == section.EventType)
                         .GroupBy(s => s.Email)
@@ -381,7 +379,7 @@ else
                     if (sectionData.Any())
                     {
                         section.Rules = sectionData;
-                        section.IsExpanded = true;  // AUTO EXPAND IF HAS DATA
+                        section.IsExpanded = true;
                     }
                 }
             }
@@ -406,25 +404,8 @@ else
 
     private async Task SaveRules()
     {
-        // var invalid = sections
-        //     .SelectMany(s => s.Rules)
-        //     .Any(r =>
-        //         string.IsNullOrWhiteSpace(r.Email) ||
-        //         !r.SelectedProjectIds.Any()
-        //     );
-
-        // if (invalid)
-        // {
-        //     Snackbar.Add(
-        //         "Please fill in all email fields and select at least one project.",
-        //         Severity.Warning
-        //     );
-        //     return;
-        // }
-
         try
         {
-            // CLEAR OLD RULES FIRST THEN RESAVE
             using var db = new AppDbContext();
             await db.Database.EnsureCreatedAsync();
 
@@ -439,7 +420,6 @@ else
             db.EmailNotifications.RemoveRange(oldRules);
             await db.SaveChangesAsync();
 
-            // SAVE NEW RULES
             foreach (var section in sections)
             {
                 foreach (var rule in section.Rules)
@@ -478,6 +458,68 @@ else
         return existingEmails
             .Where(e => e.Contains(value, StringComparison.OrdinalIgnoreCase))
             .ToList();
+    }
+
+    private async Task OnProjectSelectionChanged(NotificationRuleRow rule, IEnumerable<string> selected)
+    {
+        // Materialise immediately so the binding updates and the count text re-renders
+        rule.SelectedProjectIds = selected.ToList();
+        StateHasChanged();
+
+        foreach (var projectId in rule.SelectedProjectIds)
+        {
+            if (projectEmailCache.ContainsKey(projectId)) continue;
+
+            loadingProjectEmails.Add(projectId);
+            StateHasChanged();
+
+            try
+            {
+                var config = await SourceConfigurationService.GetSingleSourceConfiguration(Session.UserId);
+
+                if (config == null)
+                {
+                    Snackbar.Add("Source configuration not found. Please set up your data source first.", Severity.Warning);
+                    projectEmailCache[projectId] = new List<string>();
+                    continue;
+                }
+
+                var authenticated = await AuthenticationService.AuthenticateCredential(config.Username, config.PlainPass);
+
+                if (!authenticated)
+                {
+                    Snackbar.Add("Could not authenticate with the P6 server.", Severity.Warning);
+                    projectEmailCache[projectId] = new List<string>();
+                    continue;
+                }
+
+                // ObjectId is stored as a string — parse it safely
+                // if (!int.TryParse(projectId, out var projectIdInt))
+                // {
+                //     Snackbar.Add($"Invalid project ID format: {projectId}", Severity.Warning);
+                //     projectEmailCache[projectId] = new List<string>();
+                //     continue;
+                // }
+
+                var emails = await AuthenticationService.GetProjectEmails(projectId);
+                projectEmailCache[projectId] = emails ?? new List<string>();
+
+                // Merge into autocomplete suggestions
+                foreach (var email in projectEmailCache[projectId])
+                    if (!existingEmails.Contains(email))
+                        existingEmails.Add(email);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Could not fetch emails for project {projectId}: {ex.Message}", Severity.Warning);
+                projectEmailCache[projectId] = new List<string>();
+            }
+            finally
+            {
+                loadingProjectEmails.Remove(projectId);
+                StateHasChanged();
+            }
+        }
     }
 
     private string GetSectionIcon(string eventType) => eventType switch

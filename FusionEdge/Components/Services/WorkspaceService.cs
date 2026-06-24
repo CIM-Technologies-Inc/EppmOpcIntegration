@@ -121,75 +121,7 @@ namespace FusionEdge.Components.Services
 
             }
 
-            //var db = new AppDbContext();
-
-            //var user = await db.User.OrderByDescending(u => u.Id).FirstOrDefaultAsync();
-
-            //var authToken = user.AccessToken ?? "";
-            //_httpClient.DefaultRequestHeaders.Authorization =
-            //        new AuthenticationHeaderValue("Basic", authToken);
-
-
-            //var response = await _httpClient.GetAsync(
-            //     "http://192.168.8.128:8206/p6ws/restapi/eps?DatabaseName=CIMEPPM&Fields=ObjectId,Id,Name"
-            // );
-
-            //var result = await response.Content.ReadAsStringAsync();
-
-            //return new List<string> { result };
-            //var baseUrl = "http://192.168.8.128:8206";
-
-
-            //var raw = $"{username}:{password}";
-
-            //var authToken = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(raw));
-
-
-            //var cookieContainer = new CookieContainer();
-
-
-            //var handler = new HttpClientHandler
-            //{
-
-            //    CookieContainer = cookieContainer,
-
-            //    ServerCertificateCustomValidationCallback = (msg, cert, chain, errors) => true
-            //};
-
-
-            //var client = new HttpClient(handler);
-
-
-            // 1. LOGIN FIRST (required to establish session)client.DefaultRequestHeaders.Clear();
-
-            //client.DefaultRequestHeaders.Add("authToken", authToken);
-
-
-            //var loginResponse = await client.PostAsync(
-
-            //    $"{baseUrl}/p6ws/restapi/login?DatabaseName=CIMEPPM",
-
-            //    null);
-
-
-            //var loginResult = await loginResponse.Content.ReadAsStringAsync();
-
-
-            //// 2. GET WORKSPACE (EPS)
-            //var epsResponse = await client.GetAsync(
-            //    $"{baseUrl}/p6ws/restapi/eps?DatabaseName=CIMEPPM&Fields=ObjectId,Id,Name"            
-            //);
-
-
-            //var epsResult = await epsResponse.Content.ReadAsStringAsync();
-            //var workspaces = JsonSerializer.Deserialize<List<Workspace>>(epsResult);
-
-            //return workspaces ?? new List<Workspace>();
-
-            //return workspaces?
-            //    .Select(w => w.Name)
-            //    .ToList()
-            //    ?? new List<string>();
+         
 
         }
 
@@ -342,13 +274,7 @@ namespace FusionEdge.Components.Services
                 else // EPPM
                 {
                     var client = await BuildEppmClientAsync();
-                    //var url = _epsNameToId.TryGetValue(workspace, out var epsObjectId)
-
-                    //    ? $"{_eppmUrl}/p6ws/restapi/project" +
-                    //      $"?Filter=ParentEPSObjectId:eq:{epsObjectId}" +
-                    //      $"&Fields=ObjectId,Id,Name,Status"
-                    //    : $"{_eppmUrl}/p6ws/restapi/project" +
-                    //      $"?Fields=ObjectId,Id,Name,Status";
+                 
 
                     var url = $"{_eppmUrl}/p6ws/restapi/project" +
                           $"?Filter=ParentEPSObjectId:eq:{workspace}" +
@@ -387,67 +313,7 @@ namespace FusionEdge.Components.Services
 
         }
 
-        //public async Task<List<Project>> GetProjectsAsync(string workspace, string apiSource)
-        //{
-        //    try
-        //    {
-        //var baseUrl = "http://192.168.8.128:8206";
-
-        //var raw = $"{username}:{password}";
-
-        //var authToken = Convert.ToBase64String(
-        //    Encoding.UTF8.GetBytes(raw)
-        //);
-
-        // STORE SESSION COOKIE
-        //var cookieContainer = new CookieContainer();
-
-        //var handler = new HttpClientHandler
-        //{
-        //    CookieContainer = cookieContainer,
-
-        //    ServerCertificateCustomValidationCallback =
-        //        (msg, cert, chain, errors) => true
-        //};
-
-        //var client = new HttpClient(handler);
-
-        //client.DefaultRequestHeaders.Clear();
-
-        //client.DefaultRequestHeaders.Add("authToken", authToken);
-
-        // STEP 1: LOGIN FIRST
-        //var loginResponse = await client.PostAsync(
-        //    $"{baseUrl}/p6ws/restapi/login?DatabaseName=CIMEPPM",
-        //    null
-        //);
-
-        //if (!loginResponse.IsSuccessStatusCode)
-        //{
-        //    return new List<Project>();
-        //}
-
-        // STEP 2: GET PROJECTS
-        //var response = await client.GetAsync(
-        //    $"{baseUrl}/p6ws/restapi/project?DatabaseName=CIMEPPM&Fields=ObjectId,Id,Name,ParentEPSObjectId"
-        //);
-
-        //var result = await response.Content.ReadAsStringAsync();
-        //var projects = JsonSerializer.Deserialize<List<Project>>(result);
-
-        //return projects?
-        //    .Where(p => p.ParentEPSObjectId == workspace)
-        //    .ToList()
-        //    ?? new List<Project>();
-        //return projects ?? new List<Project>();
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //        return new List<Project>();
-        //    }
-        //}
+     
 
     }
 

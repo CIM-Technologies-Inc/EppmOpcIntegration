@@ -18,5 +18,7 @@ namespace FusionEdge.Components.Services
         Task<bool> AuthenticateCredential(string username, string password);
 
         Task<bool> SaveSourceConfiguration(SourceSettingDto dto);
+
+        Task<List<string>> GetProjectEmails(string projectId);
     }
 }
