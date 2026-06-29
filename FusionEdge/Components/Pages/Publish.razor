@@ -436,7 +436,7 @@ else
                 </MudButton> *@
                     <AppActionButton Text="Test Run"
                                      SubText="Schedule"
-                                     Icon="@Icons.Material.Filled.SdCardAlert"
+                                     Icon="@Icons.Material.Filled.Sync"
                                      Color="Color.Success"
                                      Tooltip="Test"
                                      Loading="@isTesting"
@@ -627,15 +627,15 @@ else
 
     private string GetDayStyle(string day)
     {
-       var baseStyle =
-       "width:50px;" +
-       "height:50px;" +
-       "min-width:50px;" +
-       "min-height:50px;" +
-       "border-radius:50%;" +
-       "flex-shrink:0;" +
-       "cursor:pointer;" +
-       "transition:all 0.2s ease;";
+        var baseStyle =
+        "width:50px;" +
+        "height:50px;" +
+        "min-width:50px;" +
+        "min-height:50px;" +
+        "border-radius:50%;" +
+        "flex-shrink:0;" +
+        "cursor:pointer;" +
+        "transition:all 0.2s ease;";
 
         return selectedDays.Contains(day)
             ? baseStyle + $"border:2px solid #1976d2; background-color:{(_isDarkMode ? "#2d3f5f" : "#ffffff")};"
@@ -1044,7 +1044,7 @@ else
                 selectedTime = latestSchedule.Time;
                 selectedDate = latestSchedule.DateTimePublish;
                 schedType = latestSchedule.ScheduleType ?? "Never";
-
+                
 
                 if (!string.IsNullOrEmpty(latestSchedule.Days))
                 {
@@ -1160,6 +1160,7 @@ else
                 Severity.Success
             );
             // ShowStatus = true;
+            schedType = selectedScheduleType;
             await LoadSavedSched();
             StateHasChanged();
         }
