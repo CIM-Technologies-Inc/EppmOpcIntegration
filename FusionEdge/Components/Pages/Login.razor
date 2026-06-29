@@ -10,7 +10,7 @@
 @using FusionEdge.Data.Models;
 
 <MudContainer MaxWidth="MaxWidth.ExtraSmall"
-              Class="d-flex align-center justify-center"
+              Class="d-flex align-center justify-center slide-in"
               Style="min-height:100vh;">
 
     <div style="position:relative; width:100%; max-width:420px;">
@@ -93,14 +93,14 @@
 
                 <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="1">
 
-                    <MudLink Href="/forgot-password" Typo="Typo.body2">
+                    @* <MudLink Href="/forgot-password" Typo="Typo.body2">
                         Forgot your password?
-                    </MudLink>
+                    </MudLink> *@
 
                     <MudDivider Vertical="true" FlexItem="true" />
 
                     <MudLink Href="/Register" Typo="Typo.body2">
-                        Sign Up
+                        Don't have account? Sign Up
                     </MudLink>
 
                 </MudStack>

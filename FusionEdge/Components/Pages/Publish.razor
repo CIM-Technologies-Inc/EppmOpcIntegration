@@ -73,415 +73,418 @@
 else
 {
  
-    <MudPaper Class="pl-14 pr-14 mx-auto mb-10 mud-text-primary" Elevation="0" Square="true"
+    <MudPaper Class="pl-14 pr-14 mx-auto mb-10 mud-text-primary slide-in" Elevation="0" Square="true"
               Style="width:100%; height:100%; background-color: var(--mud-palette-background)">
-    <MudStack Spacing="2">
-        <!-- Header -->
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+        <MudStack Spacing="2">
+            <!-- Header -->
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
 
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudIcon Icon="@Icons.Material.Filled.EditCalendar" Color="Color.Primary" />
-                    <MudText Typo="Typo.h6" Class="mud-text-TextPrimary" Style="font-weight: 500;">
-                    Publishing Settings
-                </MudText>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudIcon Icon="@Icons.Material.Filled.EditCalendar" Color="Color.Primary" />
+                        <MudText Typo="Typo.h6" Class="mud-text-TextPrimary" Style="font-weight: 500;">
+                        Publishing Settings
+                    </MudText>
+                </MudStack>
+
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mr-2">
+                    <MudTooltip Text="@(isOnline ? "Connected" : "Disconnected")" Color="@(isOnline ? Color.Success: Color.Error)" Placement="Placement.Top">
+                        <MudIcon Icon="@(isOnline ? Icons.Material.Filled.ConnectWithoutContact : Icons.Material.Filled.Circle)" Style="@($"font-size:{(isOnline ? "22px" : "16px")}; padding-bottom:2px; margin-right:2px;")" Color="@(isOnline ? Color.Success : Color.Error)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.button" Class="mud-text-TextPrimary" Style="white-space: nowrap;">
+                            @Session.UserName
+                        </MudText>
+
+                    <MudTooltip Text="Logout" Color="Color.Primary" Placement="Placement.Top">
+                        <MudIconButton Icon="@Icons.Material.Filled.Logout"
+                                           Class="mud-text-TextPrimary"
+                                   OnClick="Logout" />
+                    </MudTooltip>
+                </MudStack>
+
             </MudStack>
 
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="mr-2">
-                    <MudText Typo="Typo.button" Class="mud-text-TextPrimary">
-                    @Session.UserName
-                </MudText>
+            <!-- Description -->
+                <MudText Typo="Typo.body2" Class="mud-text-TextPrimary">
+                Configure how schedules are published. You can use automatic scheduling or publish immediately using the Publish Now action.
+            </MudText>
 
-                <MudTooltip Text="Logout" Color="Color.Primary" Placement="Placement.Top">
-                    <MudIconButton Icon="@Icons.Material.Filled.Logout"
-                                       Class="mud-text-TextPrimary"
-                               OnClick="Logout" />
-                </MudTooltip>
+            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" Class="mt-4">
+                <MudItem Style="flex:1;">
+                        <MudText Typo="Typo.body2" Class="mud-text-primary">WORKSPACE</MudText>
+                        <MudSelect T="string"
+                                   Margin="Margin.Dense"
+                                   Variant="Variant.Outlined"
+                                   Label="Select a Workspace"
+                                   Value="selectedWorkspace"
+                                   Error="@(showworkspaceValidation)"
+                                   ValueChanged="OnWorkspaceChanged"
+                                   Class="mud-theme-background"
+                                   Style="border-radius: 4px;">
+                            @foreach (var ws in workspaces)
+                            {
+                                <MudSelectItem T="string" Value="@ws.ObjectId">
+                                    @ws.Name
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                </MudItem>
+                <MudItem Style="flex:1;">
+                        <MudText Typo="Typo.body2">PROJECT</MudText>
+                        <MudSelect T="string"
+                                   Value="selectedProjectObjectId"
+                                   ValueChanged="OnProjectChanged"
+                                   Label="Select a Project"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   Class="mud-theme-background"
+                                   Style="border-radius: 4px;"
+                                   Error="@(showProjectValidation)"
+                                   Disabled="availableProjects.Count == 0">
+
+                            @foreach (var project in availableProjects)
+                            {
+                                <MudSelectItem T="string"
+                                               Value="@project.ObjectId">
+                                    @project.Name
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                </MudItem>
             </MudStack>
 
-        </MudStack>
+            <MudStack Spacing="2" Class="mt-4">
+                    <MudText Typo="Typo.body2" Class="mud-text-primary">SCHEDULE TYPE</MudText>
 
-        <!-- Description -->
-            <MudText Typo="Typo.body2" Class="mud-text-TextPrimary">
-            Configure how schedules are published. You can use automatic scheduling or publish immediately using the Publish Now action.
-        </MudText>
-
-        <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" Class="mt-4">
-            <MudItem Style="flex:1;">
-                    <MudText Typo="Typo.body2" Class="mud-text-primary">WORKSPACE</MudText>
-                    <MudSelect T="string"
-                               Margin="Margin.Dense"
-                               Variant="Variant.Outlined"
-                               Label="Select a Workspace"
-                               Value="selectedWorkspace"
-                               Error="@(showworkspaceValidation)"
-                               ValueChanged="OnWorkspaceChanged"
-                               Class="mud-theme-background"
-                               Style="border-radius: 4px;">
-                        @foreach (var ws in workspaces)
-                        {
-                            <MudSelectItem T="string" Value="@ws.ObjectId">
-                                @ws.Name
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
-            </MudItem>
-            <MudItem Style="flex:1;">
-                    <MudText Typo="Typo.body2">PROJECT</MudText>
-                    <MudSelect T="string"
-                               Value="selectedProjectObjectId"
-                               ValueChanged="OnProjectChanged"
-                               Label="Select a Project"
-                               Variant="Variant.Outlined"
-                               Margin="Margin.Dense"
-                               Class="mud-theme-background"
-                               Style="border-radius: 4px;"
-                               Error="@(showProjectValidation)"
-                               Disabled="availableProjects.Count == 0">
-
-                        @foreach (var project in availableProjects)
-                        {
-                            <MudSelectItem T="string"
-                                           Value="@project.ObjectId">
-                                @project.Name
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
-            </MudItem>
-        </MudStack>
-
-        <MudStack Spacing="2" Class="mt-4">
-                <MudText Typo="Typo.body2" Class="mud-text-primary">SCHEDULE TYPE</MudText>
-
-            <MudGrid Spacing="3">
-                    <MudItem xs="12" sm="6" md="3">
-                    <MudPaper Class="pa-6 d-flex flex-column align-center justify-center schedule-card"
-                              Style="@GetScheduleTypeStyle("Daily")"
-                                  Elevation="@GetScheduleTypeElevation("Daily")"
-                              @onclick="@(() => SelectScheduleType("Daily"))">
-                            <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Medium" Style="@($"color:{(_isDarkMode ? "#ffffff" : "#6366f1")}")" Margin="Margin.Dense" />
-                            <MudText Typo="Typo.body2" Class="mt-2 mud-text-primary">Daily</MudText>
-                    </MudPaper>
-                </MudItem>
-
-                    <MudItem xs="12" sm="6" md="3">
-                    <MudPaper Class="pa-6 d-flex flex-column align-center justify-center schedule-card"
-                              Style="@GetScheduleTypeStyle("Weekly")"
-                                  Elevation="@GetScheduleTypeElevation("Weekly")"
-                              @onclick="@(() => SelectScheduleType("Weekly"))">
-                            <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Style="@($"color:{(_isDarkMode ? "#ffffff" : "#6366f1")}")" Margin="Margin.Dense" />
-                            <MudText Typo="Typo.body2" Class="mt-2 mud-text-primary">Weekly</MudText>
-                    </MudPaper>
-                </MudItem>
-
-                    <MudItem xs="12" sm="6" md="3">
-                    <MudPaper Class="pa-6 d-flex flex-column align-center justify-center schedule-card"
-                              Style="@GetScheduleTypeStyle("Custom")"
-                                  Elevation="@GetScheduleTypeElevation("Custom")"
-                              @onclick="@(() => SelectScheduleType("Custom"))">
-                            <MudIcon Icon="@Icons.Material.Filled.Tune" Size="Size.Medium" Style="@($"color:{(_isDarkMode ? "#ffffff" : "#6366f1")}")" Margin="Margin.Dense" />
-                            <MudText Typo="Typo.body2" Class="mt-2 mud-text-primary">Custom</MudText>
-                    </MudPaper>
-                </MudItem>
-
-                    <MudItem xs="12" sm="6" md="3">
-                    <MudPaper Class="pa-6 d-flex flex-column align-center justify-center schedule-card"
-                              Style="@GetScheduleTypeStyle("Never")"
-                                  Elevation="@GetScheduleTypeElevation("Never")"
-                              @onclick="@(() => SelectScheduleType("Never"))">
-                            <MudIcon Icon="@Icons.Material.Filled.Block" Size="Size.Medium" Style="@($"color:{(_isDarkMode ? "#ffffff" : "#6366f1")}")" Margin="Margin.Dense" />
-                            <MudText Typo="Typo.body2" Class="mt-2 mud-text-primary">Never</MudText>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
-        </MudStack>
-
-        <MudStack Spacing="2" Class="mt-4">
-            @if (ShowDays || selectedScheduleType == "Custom" || selectedScheduleType == "Daily" || selectedScheduleType == "Weekly")
-            {
-                    <MudText Typo="Typo.body2" Class="mud-text-primary">SCHEDULE RELEASE TIME</MudText>
-            }
-
-            @if (ShowDays)
-            {
-                <MudStack Row="true"  Wrap="Wrap.Wrap" Spacing="2" Class="mb-3 d-flex align-center">
-                    @foreach (var day in daysOfWeek)
-                    {
-                         <MudPaper Class="d-flex flex-column align-center justify-center weekly-card"
-                                    Style="@($"{GetDayStyle(day)}; width:50px; height:50px; border-radius:50%; cursor:pointer;")"
-                                    @onclick="@(() => ToggleDay(day))">
-
-                                <MudText Typo="Typo.button" Class="mud-text-primary" Style="font-size: 0.90rem;">
-                                @day.Substring(0, 1)
-                            </MudText>
+                <MudGrid Spacing="3">
+                        <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-6 d-flex flex-column align-center justify-center schedule-card"
+                                  Style="@GetScheduleTypeStyle("Daily")"
+                                      Elevation="@GetScheduleTypeElevation("Daily")"
+                                  @onclick="@(() => SelectScheduleType("Daily"))">
+                                <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Medium" Style="@($"color:{(_isDarkMode ? "#ffffff" : "#6366f1")}")" Margin="Margin.Dense" />
+                                <MudText Typo="Typo.body2" Class="mt-2 mud-text-primary">Daily</MudText>
                         </MudPaper>
-                    }
-                    <div style="width:300px;">
-                        <MudTimePicker Placeholder="Select Time"
-                                       Class="pl-3 pr-3 mud-theme-background"
-                                       AmPm="true"
-                                       Margin="Margin.Dense"
-                                       Time="selectedTime"
-                                       TimeChanged="@(t => selectedTime = t)"
-                                       Variant="Variant.Outlined"
-                                       Required="true"
-                                       Error="@(showValidation && !selectedTime.HasValue)"
-                                       ErrorText="Time is required" 
-                                       Style="border-radius: 4px;" />
-                    </div>
-                        @if (nextRun.HasValue && (selectedScheduleType == schedType))
+                    </MudItem>
+
+                        <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-6 d-flex flex-column align-center justify-center schedule-card"
+                                  Style="@GetScheduleTypeStyle("Weekly")"
+                                      Elevation="@GetScheduleTypeElevation("Weekly")"
+                                  @onclick="@(() => SelectScheduleType("Weekly"))">
+                                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Style="@($"color:{(_isDarkMode ? "#ffffff" : "#6366f1")}")" Margin="Margin.Dense" />
+                                <MudText Typo="Typo.body2" Class="mt-2 mud-text-primary">Weekly</MudText>
+                        </MudPaper>
+                    </MudItem>
+
+                        <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-6 d-flex flex-column align-center justify-center schedule-card"
+                                  Style="@GetScheduleTypeStyle("Custom")"
+                                      Elevation="@GetScheduleTypeElevation("Custom")"
+                                  @onclick="@(() => SelectScheduleType("Custom"))">
+                                <MudIcon Icon="@Icons.Material.Filled.Tune" Size="Size.Medium" Style="@($"color:{(_isDarkMode ? "#ffffff" : "#6366f1")}")" Margin="Margin.Dense" />
+                                <MudText Typo="Typo.body2" Class="mt-2 mud-text-primary">Custom</MudText>
+                        </MudPaper>
+                    </MudItem>
+
+                        <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-6 d-flex flex-column align-center justify-center schedule-card"
+                                  Style="@GetScheduleTypeStyle("Never")"
+                                      Elevation="@GetScheduleTypeElevation("Never")"
+                                  @onclick="@(() => SelectScheduleType("Never"))">
+                                <MudIcon Icon="@Icons.Material.Filled.Block" Size="Size.Medium" Style="@($"color:{(_isDarkMode ? "#ffffff" : "#6366f1")}")" Margin="Margin.Dense" />
+                                <MudText Typo="Typo.body2" Class="mt-2 mud-text-primary">Never</MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudStack>
+
+            <MudStack Spacing="2" Class="mt-4">
+                @if (ShowDays || selectedScheduleType == "Custom" || selectedScheduleType == "Daily" || selectedScheduleType == "Weekly")
+                {
+                        <MudText Typo="Typo.body2" Class="mud-text-primary">SCHEDULE RELEASE TIME</MudText>
+                }
+
+                @if (ShowDays)
+                {
+                    <MudStack Row="true"  Wrap="Wrap.Wrap" Spacing="2" Class="mb-3 d-flex align-center">
+                        @foreach (var day in daysOfWeek)
                         {
-                            <MudText Typo="Typo.body2" Class="mud-text-primary">
+                             <MudPaper Class="d-flex flex-column align-center justify-center weekly-card"
+                                        Style="@($"{GetDayStyle(day)}; width:50px; height:50px; border-radius:50%; cursor:pointer;")"
+                                        @onclick="@(() => ToggleDay(day))">
+
+                                    <MudText Typo="Typo.button" Class="mud-text-primary" Style="font-size: 0.90rem;">
+                                    @day.Substring(0, 1)
+                                </MudText>
+                            </MudPaper>
+                        }
+                        <div style="width:300px;">
+                            <MudTimePicker Placeholder="Select Time"
+                                           Class="pl-3 pr-3 mud-theme-background"
+                                           AmPm="true"
+                                           Margin="Margin.Dense"
+                                           Time="selectedTime"
+                                           TimeChanged="@(t => selectedTime = t)"
+                                           Variant="Variant.Outlined"
+                                           Required="true"
+                                           Error="@(showValidation && !selectedTime.HasValue)"
+                                           ErrorText="Time is required" 
+                                           Style="border-radius: 4px;" />
+                        </div>
+                            @if (nextRun.HasValue && (selectedScheduleType == schedType))
+                            {
+                                <MudText Typo="Typo.body2" Class="mud-text-primary">
+                                    <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Primary" />
+                                    <span>
+                                        Next Run: @nextRun.Value.ToString("MMM dd yyyy hh:mm tt", CultureInfo.InvariantCulture)
+                                    </span>
+                                </MudText>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.body2" Class="mud-text-primary">
+                                    <MudIcon Icon="@Icons.Material.Filled.Info" Color="Color.Primary" Class="mr-4" />
+                                    <span>No upcoming run</span>
+                                </MudText>
+                            }
+                    </MudStack>
+                }
+                @if (selectedScheduleType == "Custom")
+                {
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12" sm="6">
+                                <MudDatePicker Placeholder="Pick Date"
+                                           Class="mud-theme-background"
+                                           Variant="Variant.Outlined"
+                                           Margin="Margin.Dense"
+                                           Required="true"
+                                           @bind-Date="selectedDate"
+                                           ErrorText="Date is required"
+                                           Style="border-radius: 4px;" />
+                        </MudItem>
+        
+                        <MudItem xs="12" sm="6">
+                                <MudTimePicker Placeholder="Select Time"
+                                           Class="mud-theme-background"
+                                           AmPm="true"
+                                           Margin="Margin.Dense"
+                                           Time="selectedTime"
+                                           TimeChanged="@(t => selectedTime = t)"
+                                           Variant="Variant.Outlined"
+                                           Required="true"
+                                           Error="@(showValidation && !selectedTime.HasValue)"
+                                           ErrorText="Time is required"
+                                           Style="border-radius: 4px;" />
+                        </MudItem>
+                    </MudGrid>
+                        <MudText Typo="Typo.body2" Class="mud-text-primary">
+                            <MudIcon Icon="@Icons.Material.Filled.Info" Color="Color.Primary" Class="mr-4" />
+                            @if (nextRun.HasValue && (selectedScheduleType == schedType))
+                            {
+                                <span>
+                                    Next Run: @nextRun.Value.ToString("MMM dd yyyy hh:mm tt", CultureInfo.InvariantCulture)
+                                </span>
+                            }
+                            else
+                            {
+                                <span>No upcoming run</span>
+                            }
+                    </MudText>
+                }
+                @if (selectedScheduleType == "Daily")
+                {
+                        <MudGrid Spacing="2" Class="d-flex align-center">
+                        <MudItem xs="6" sm="6">
+                            <MudTimePicker Placeholder="Select Time"
+                                           AmPm="true"
+                                           Class="mud-theme-background"
+                                           Margin="Margin.Dense"
+                                           Time="selectedTime"
+                                           TimeChanged="@(t => selectedTime = t)"
+                                           Variant="Variant.Outlined"
+                                           Required="true"
+                                           Error="@(showValidation && !selectedTime.HasValue)"
+                                           ErrorText="Time is required"
+                                           Style="border-radius: 4px;" />
+                        </MudItem>
+                            <MudText Typo="Typo.body2" Class="mt-2 pl-2 mud-text-primary">
+                             @if (nextRun.HasValue && (selectedScheduleType == schedType))
+                            {
                                 <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Primary" />
                                 <span>
                                     Next Run: @nextRun.Value.ToString("MMM dd yyyy hh:mm tt", CultureInfo.InvariantCulture)
                                 </span>
-                            </MudText>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.body2" Class="mud-text-primary">
+                            }
+                            else
+                            {
                                 <MudIcon Icon="@Icons.Material.Filled.Info" Color="Color.Primary" Class="mr-4" />
                                 <span>No upcoming run</span>
-                            </MudText>
-                        }
+                            }
+                        </MudText>
+                    </MudGrid>
+                }
+
+            </MudStack>
+     
+            @if (ShowStatus)
+            {
+                <MudStack Class="mt-2">
+                    <MudAlert Severity="@StatusSeverity" Variant="Variant.Filled" ShowCloseIcon="true" CloseIconClicked="CloseAlert">
+                        <MudText Typo="Typo.body2">
+                            @StatusMessage
+                        </MudText>
+                    </MudAlert>
                 </MudStack>
             }
-            @if (selectedScheduleType == "Custom")
-            {
-                <MudGrid Spacing="2">
-                    <MudItem xs="12" sm="6">
-                            <MudDatePicker Placeholder="Pick Date"
-                                       Class="mud-theme-background"
-                                       Variant="Variant.Outlined"
-                                       Margin="Margin.Dense"
-                                       Required="true"
-                                       @bind-Date="selectedDate"
-                                       ErrorText="Date is required"
-                                       Style="border-radius: 4px;" />
-                    </MudItem>
         
-                    <MudItem xs="12" sm="6">
-                            <MudTimePicker Placeholder="Select Time"
-                                       Class="mud-theme-background"
-                                       AmPm="true"
-                                       Margin="Margin.Dense"
-                                       Time="selectedTime"
-                                       TimeChanged="@(t => selectedTime = t)"
-                                       Variant="Variant.Outlined"
-                                       Required="true"
-                                       Error="@(showValidation && !selectedTime.HasValue)"
-                                       ErrorText="Time is required"
-                                       Style="border-radius: 4px;" />
-                    </MudItem>
-                </MudGrid>
-                    <MudText Typo="Typo.body2" Class="mud-text-primary">
-                        <MudIcon Icon="@Icons.Material.Filled.Info" Color="Color.Primary" Class="mr-4" />
-                        @if (nextRun.HasValue && (selectedScheduleType == schedType))
+            <MudStack Row="true" Spacing="3" Class="@(ShowStatus ? "mt-4" : "mt-2")">
+                @* <MudButton Variant="Variant.Filled"
+                           Color="Color.Error"
+                           Size="Size.Large"
+                           Style="padding:13px 30px; text-transform:none; border-radius: 10px"
+                           OnClick="SaveSchedule">
+                        @if (isSaving)
                         {
-                            <span>
-                                Next Run: @nextRun.Value.ToString("MMM dd yyyy hh:mm tt", CultureInfo.InvariantCulture)
-                            </span>
+                            <MudProgressCircular Indeterminate="true"
+                                                 Size="Size.Small"
+                                                 Class="mr-2" />
+                            <span>Saving...</span>
                         }
                         else
                         {
-                            <span>No upcoming run</span>
-                        }
-                </MudText>
-            }
-            @if (selectedScheduleType == "Daily")
-            {
-                    <MudGrid Spacing="2" Class="d-flex align-center">
-                    <MudItem xs="6" sm="6">
-                        <MudTimePicker Placeholder="Select Time"
-                                       AmPm="true"
-                                       Class="mud-theme-background"
-                                       Margin="Margin.Dense"
-                                       Time="selectedTime"
-                                       TimeChanged="@(t => selectedTime = t)"
-                                       Variant="Variant.Outlined"
-                                       Required="true"
-                                       Error="@(showValidation && !selectedTime.HasValue)"
-                                       ErrorText="Time is required"
-                                       Style="border-radius: 4px;" />
-                    </MudItem>
-                        <MudText Typo="Typo.body2" Class="mt-2 pl-2 mud-text-primary">
-                         @if (nextRun.HasValue && (selectedScheduleType == schedType))
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Primary" />
-                            <span>
-                                Next Run: @nextRun.Value.ToString("MMM dd yyyy hh:mm tt", CultureInfo.InvariantCulture)
-                            </span>
-                        }
-                        else
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.Info" Color="Color.Primary" Class="mr-4" />
-                            <span>No upcoming run</span>
-                        }
-                    </MudText>
-                </MudGrid>
-            }
+                            <MudStack Spacing="0">
+                                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Save" Size="Size.Small" />
+                                    <MudText Typo="Typo.subtitle1">Save</MudText>
+                                </MudStack>
 
-        </MudStack>
-     
-        @if (ShowStatus)
-        {
-            <MudStack Class="mt-2">
-                <MudAlert Severity="@StatusSeverity" Variant="Variant.Filled" ShowCloseIcon="true" CloseIconClicked="CloseAlert">
-                    <MudText Typo="Typo.body2">
-                        @StatusMessage
-                    </MudText>
-                </MudAlert>
-            </MudStack>
-        }
-        
-        <MudStack Row="true" Spacing="3" Class="@(ShowStatus ? "mt-4" : "mt-2")">
-            @* <MudButton Variant="Variant.Filled"
-                       Color="Color.Error"
-                       Size="Size.Large"
-                       Style="padding:13px 30px; text-transform:none; border-radius: 10px"
-                       OnClick="SaveSchedule">
-                    @if (isSaving)
+                                <MudText Typo="Typo.subtitle1">
+                                    Settings
+                                </MudText>
+                            </MudStack>
+                        }
+                </MudButton> *@
+                <AppActionButton Text="Save"
+                                    SubText="Settings"
+                                    Icon="@Icons.Material.Filled.Save"
+                                    Color="Color.Error"
+                                    Tooltip="Save"
+                                    Loading="@isSaving"
+                                    LoadingText="Saving..."
+                                    OnClick="SaveSchedule" />
+
+                @* <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Medium"
+                           Style="padding:13px 30px; text-transform:none; border-radius: 10px"
+                           OnClick="TransferFile">
+                    @if (isLoading)
                     {
                         <MudProgressCircular Indeterminate="true"
-                                             Size="Size.Small"
-                                             Class="mr-2" />
-                        <span>Saving...</span>
+                        Size="Size.Small"
+                        Class="mr-2" />
+                        <span>Publishing...</span>
                     }
                     else
                     {
                         <MudStack Spacing="0">
                             <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudIcon Icon="@Icons.Material.Filled.Save" Size="Size.Small" />
-                                <MudText Typo="Typo.subtitle1">Save</MudText>
+                                <MudIcon Icon="@Icons.Material.Filled.PushPin" Size="Size.Small" />
+                                    <MudText Typo="Typo.subtitle1">Publish</MudText>
                             </MudStack>
 
-                            <MudText Typo="Typo.subtitle1">
-                                Settings
+                                <MudText Typo="Typo.subtitle1">
+                                Now
                             </MudText>
                         </MudStack>
                     }
-            </MudButton> *@
-            <AppActionButton Text="Save"
-                                SubText="Settings"
-                                Icon="@Icons.Material.Filled.Save"
-                                Color="Color.Error"
-                                Tooltip="Save"
-                                Loading="@isSaving"
-                                LoadingText="Saving..."
-                                OnClick="SaveSchedule" />
+                </MudButton> *@
+                    <AppActionButton Text="Publish"
+                                     SubText="Now"
+                                     Icon="@Icons.Material.Filled.PushPin"
+                                     Color="Color.Primary"
+                                     Tooltip="Publish"
+                                     Loading="@isLoading"
+                                     LoadingText="Publishing..."
+                                     OnClick="TransferFile" />
 
-            @* <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Size="Size.Medium"
-                       Style="padding:13px 30px; text-transform:none; border-radius: 10px"
-                       OnClick="TransferFile">
-                @if (isLoading)
-                {
-                    <MudProgressCircular Indeterminate="true"
-                    Size="Size.Small"
-                    Class="mr-2" />
-                    <span>Publishing...</span>
-                }
-                else
-                {
-                    <MudStack Spacing="0">
-                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                            <MudIcon Icon="@Icons.Material.Filled.PushPin" Size="Size.Small" />
-                                <MudText Typo="Typo.subtitle1">Publish</MudText>
-                        </MudStack>
+                @* <MudButton Variant="Variant.Filled"
+                           Color="Color.Success"
+                           Size="Size.Medium"
+                           OnClick="TestSchedule"
+                               Style="padding:13px 30px; text-transform:none; border-radius: 10px">
+                    @if (isTesting)
+                    {
+                        <MudProgressCircular Indeterminate="true"
+                                             Size="Size.Small"
+                                             Class="mr-2" />
+                        <span>Running Sched....</span>
+                    }
+                    else
+                    {
+                        <MudStack Spacing="0">
+                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                    <MudIcon Icon="@Icons.Material.Filled.SdCardAlert" Size="Size.Small" />
+                                    <MudText Typo="Typo.subtitle1">Test Run</MudText>
+                            </MudStack>
 
                             <MudText Typo="Typo.subtitle1">
-                            Now
-                        </MudText>
-                    </MudStack>
-                }
-            </MudButton> *@
-                <AppActionButton Text="Publish"
-                                 SubText="Now"
-                                 Icon="@Icons.Material.Filled.PushPin"
-                                 Color="Color.Primary"
-                                 Tooltip="Publish"
-                                 Loading="@isLoading"
-                                 LoadingText="Publishing..."
-                                 OnClick="TransferFile" />
-
-            @* <MudButton Variant="Variant.Filled"
-                       Color="Color.Success"
-                       Size="Size.Medium"
-                       OnClick="TestSchedule"
-                           Style="padding:13px 30px; text-transform:none; border-radius: 10px">
-                @if (isTesting)
-                {
-                    <MudProgressCircular Indeterminate="true"
-                                         Size="Size.Small"
-                                         Class="mr-2" />
-                    <span>Running Sched....</span>
-                }
-                else
-                {
-                    <MudStack Spacing="0">
-                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                                <MudIcon Icon="@Icons.Material.Filled.SdCardAlert" Size="Size.Small" />
-                                <MudText Typo="Typo.subtitle1">Test Run</MudText>
+                                    Schedule
+                            </MudText>
                         </MudStack>
-
-                        <MudText Typo="Typo.subtitle1">
-                                Schedule
-                        </MudText>
-                    </MudStack>
-                }
-            </MudButton> *@
-                <AppActionButton Text="Test Run"
-                                 SubText="Schedule"
-                                 Icon="@Icons.Material.Filled.SdCardAlert"
-                                 Color="Color.Success"
-                                 Tooltip="Test"
-                                 Loading="@isTesting"
-                                 LoadingText="Running..."
-                                 OnClick="TestSchedule" />
-                @* <MudButton Variant="Variant.Text"
-                       Color="Color.Info"
-                       Size="Size.Medium"
-                       StartIcon="@Icons.Material.Filled.SettingsInputComponent"
-                       Style="padding:8px 20px; text-transform:none; border-radius: 10px"
-                       OnClick="@(() => Navigation.NavigateTo("/DataSourceConfiguration"))">
-                <MudText Typo="Typo.subtitle1">
-                    Data Source
-                </MudText> 
-            </MudButton>*@
-                <AppActionButton Text="Data Source"
-                                 Variant="Variant.Text"
-                                 Icon="@Icons.Material.Filled.SettingsInputComponent"
-                                 Color="Color.Info"
-                                 Tooltip="Config"
-                                 OnClick="@(() => Navigation.NavigateTo("/DataSourceConfiguration"))" />
-            @*     <MudButton Variant="Variant.Text"
-                       Color="Color.Secondary"
-                       Size="Size.Medium"
-                       StartIcon="@Icons.Material.Filled.Notifications"
+                    }
+                </MudButton> *@
+                    <AppActionButton Text="Test Run"
+                                     SubText="Schedule"
+                                     Icon="@Icons.Material.Filled.SdCardAlert"
+                                     Color="Color.Success"
+                                     Tooltip="Test"
+                                     Loading="@isTesting"
+                                     LoadingText="Running..."
+                                     OnClick="TestSchedule" />
+                    @* <MudButton Variant="Variant.Text"
+                           Color="Color.Info"
+                           Size="Size.Medium"
+                           StartIcon="@Icons.Material.Filled.SettingsInputComponent"
                            Style="padding:8px 20px; text-transform:none; border-radius: 10px"
-                           OnClick="@(() =>
-                           {
-                               Navigation.NavigateTo("/EmailNotificationRules");
-                               ShowStatus = false;
-                           })">
-                <MudText Typo="Typo.subtitle1">
-                    Notification Rules
-                </MudText>
-            </MudButton> *@
-                <AppActionButton Text="Notifications"
-                                 Variant="Variant.Text"
-                                 Icon="@Icons.Material.Filled.Notifications"
-                                 Color="Color.Secondary"
-                                 Tooltip="Rules"
-                                 OnClick="@(() =>
-                                                  {
-                                                      Navigation.NavigateTo("/EmailNotificationRules");
-                                                      ShowStatus = false;
-                                                  })" />
+                           OnClick="@(() => Navigation.NavigateTo("/DataSourceConfiguration"))">
+                    <MudText Typo="Typo.subtitle1">
+                        Data Source
+                    </MudText> 
+                </MudButton>*@
+                    <AppActionButton Text="Data Source"
+                                     Variant="Variant.Text"
+                                     Icon="@Icons.Material.Filled.SettingsInputComponent"
+                                     Color="Color.Info"
+                                     Tooltip="Config"
+                                     OnClick="@(() => Navigation.NavigateTo("/DataSourceConfiguration"))" />
+                @*     <MudButton Variant="Variant.Text"
+                           Color="Color.Secondary"
+                           Size="Size.Medium"
+                           StartIcon="@Icons.Material.Filled.Notifications"
+                               Style="padding:8px 20px; text-transform:none; border-radius: 10px"
+                               OnClick="@(() =>
+                               {
+                                   Navigation.NavigateTo("/EmailNotificationRules");
+                                   ShowStatus = false;
+                               })">
+                    <MudText Typo="Typo.subtitle1">
+                        Notification Rules
+                    </MudText>
+                </MudButton> *@
+                    <AppActionButton Text="Notifications"
+                                     Variant="Variant.Text"
+                                     Icon="@Icons.Material.Filled.Notifications"
+                                     Color="Color.Secondary"
+                                     Tooltip="Rules"
+                                     OnClick="@(() =>
+                                                      {
+                                                          Navigation.NavigateTo("/EmailNotificationRules");
+                                                          ShowStatus = false;
+                                                      })" />
+            </MudStack>
         </MudStack>
-    </MudStack>
-</MudPaper>
+    </MudPaper>
 }
 
 @code {
@@ -495,6 +498,7 @@ else
     private bool showEmailValidation = false;
     private bool showworkspaceValidation = false;
     private bool showProjectValidation = false;
+    private bool isOnline = false;
     private string? StatusMessage;
     private Severity StatusSeverity = Severity.Info;
     private bool ShowStatus = false;
@@ -623,7 +627,7 @@ else
 
     private string GetDayStyle(string day)
     {
-        var baseStyle =
+       var baseStyle =
        "width:50px;" +
        "height:50px;" +
        "min-width:50px;" +
@@ -634,8 +638,8 @@ else
        "transition:all 0.2s ease;";
 
         return selectedDays.Contains(day)
-            ? baseStyle + "border:2px solid #1976d2; background-color:#2d3f5f;"
-            : baseStyle + "border:1px solid #3a3a4a;";
+            ? baseStyle + $"border:2px solid #1976d2; background-color:{(_isDarkMode ? "#2d3f5f" : "#ffffff")};"
+            : baseStyle + $"border:1px solid {(_isDarkMode ? "#3a3a4a" : "#e8e6e6")};";
     }
 
     private int GetScheduleTypeElevation(string type)
@@ -1203,6 +1207,7 @@ else
 
             if (workspaces.Any())
             {
+                isOnline = true;
                 selectedWorkspace = workspaces.First().ObjectId;
                 await LoadProjectsForWorkspace(selectedWorkspace);
             }
@@ -1218,6 +1223,7 @@ else
                     Snackbar.Configuration.VisibleStateDuration = 1500;
                     Snackbar.Add("Failed to load workspace, Can't reach to server!", Severity.Error);
 
+                    isOnline = false;
                     isPageLoading = false;
                     return;
                 }

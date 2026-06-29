@@ -29,7 +29,7 @@
             <MudDivider />
             @for (int i = 0; i < 3; i++)
             {
-                <MudPaper Class="pa-4" Style="background-color: var(--mud-palette-surface); border:1px solid; border-radius:8px;">
+                <MudPaper Class="pa-4" Style="background-color: var(--mud-palette-surface); border-radius:8px;">
                     <MudStack Spacing="3">
                         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
@@ -65,8 +65,8 @@
 }
 else
 {
-    <MudPaper Class="pa-10 mx-auto mb-10 mt-4"
-              Style="background-color: var(--mud-palette-surface); max-width:900px;">
+    <MudPaper Class="pa-10 mx-auto mb-10 mt-4 slide-in" Elevation="4"
+              Style="background-color: var(--mud-palette-surface); max-width:900px; border-radius:16px;">
         <MudStack Spacing="4">
 
             <!-- HEADER -->
